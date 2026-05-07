@@ -71,7 +71,8 @@ if [[ -f "$DONE_MARKER" ]]; then
     exit 0
 fi
 
-git checkout v1.0-dengue-results 2>&1 | tail -3 | tee -a "$LOG"
+# Stay on master. Tag is just a "done" signal; outputs are already on master HEAD.
+log "  staying on master branch (tag is a completion signal, outputs already at HEAD)"
 
 # ----------------------------------------------------------------------------
 # Step 4: paperclip enrichment (citation graph)
@@ -208,7 +209,6 @@ wait_with_timeout "$ROUND3_PID" 1800
 # Step 6: commit + push final manuscript
 # ----------------------------------------------------------------------------
 cd "$REPO"
-git checkout master 2>&1 | tail -3 | tee -a "$LOG"
 git add outputs/manuscript/ docs/dengue/ 2>>"$LOG" || true
 if git diff --cached --quiet; then
     log "  no manuscript changes to commit (Claude rounds may have failed)"
