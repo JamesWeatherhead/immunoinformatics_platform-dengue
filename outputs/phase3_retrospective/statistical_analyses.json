@@ -1,0 +1,31 @@
+{
+  "pearson_r_composite_avg": 0.3515690544264954,
+  "pearson_r_tier_A_only": 0.3239467794101883,
+  "pearson_r_tier_B_only": -0.17284891661841748,
+  "tier_A_normalized": [
+    1.0,
+    0.0,
+    1.0
+  ],
+  "tier_B_normalized": [
+    0.8285714285714286,
+    1.0,
+    0.8571428571428571
+  ],
+  "composite_avg": [
+    0.9142857142857144,
+    0.5,
+    0.9285714285714286
+  ],
+  "published_efficacy": [
+    56.5,
+    61.2,
+    79.6
+  ],
+  "permutation_p_tier_A": 1.0,
+  "rank_match_butantan_first": true,
+  "method": "EDE-restricted Tier A (EpiDope) + Tier B (MHC-I) on 12 Phase 3 vaccine constructs",
+  "n_vaccines": 3,
+  "n_constructs": 12,
+  "caveat": "n=3 vaccine programs precludes inferential statistics; numbers are descriptive"
+}
