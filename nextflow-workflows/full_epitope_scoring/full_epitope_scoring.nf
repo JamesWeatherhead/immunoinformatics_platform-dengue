@@ -1143,7 +1143,17 @@ workflow {
         discotope_out_ch = DISCOTOPE(alphafold_pdb_ch)
         DISCOTOPETOTSV(discotope_out_ch)
     }
-    COMPILEFASTAFROMBCELLWORK(bepipred_tsv_ch.mix(epidope_tsv_ch).collect())
+    // PATCH (dengue fork): only invoke COMPILEFASTAFROMBCELLWORK when at
+    // least one B-cell scorer ran. Upstream unconditionally referenced
+    // bepipred_tsv_ch and epidope_tsv_ch which crashes when both stages
+    // are disabled (e.g. partial smoke runs).
+    if (params.bepipred == "yes" && params.epidope == "yes") {
+        COMPILEFASTAFROMBCELLWORK(bepipred_tsv_ch.mix(epidope_tsv_ch).collect())
+    } else if (params.bepipred == "yes") {
+        COMPILEFASTAFROMBCELLWORK(bepipred_tsv_ch.collect())
+    } else if (params.epidope == "yes") {
+        COMPILEFASTAFROMBCELLWORK(epidope_tsv_ch.collect())
+    }
 
     /* T-CELL SCORING */
     if (params.netmhcpani == "yes") {
