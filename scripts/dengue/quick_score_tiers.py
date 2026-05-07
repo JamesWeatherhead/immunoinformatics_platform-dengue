@@ -41,19 +41,21 @@ def parse_serotype(seqid):
     return seqid
 
 
-def count_epidope_per_serotype(bcell_dir, score_threshold=0.7):
-    """Count high-score B-cell residues per serotype.
+def count_epidope_per_serotype(bcell_dir, score_threshold=0.7,
+                                 start_pos=1, end_pos=99999, ede_residues=None):
+    """Count high-score B-cell residues per serotype, optionally subsetted to a window.
 
-    Uses epidope_scores.csv (per-residue) since predicted_epitopes.csv
-    sometimes ends up empty when EpiDope's stringent epitope threshold
-    rejects all peptides. The per-residue scores are real signal.
+    Uses epidope_scores.csv (per-residue). Format:
+        'position/header\taminoacid\tscore' with '>seqid' header rows.
+    Position in epidope_scores.csv is 1-indexed within each protein.
 
-    Format: 'position/header\taminoacid\tscore' with '>seqid' header rows.
+    Args:
+        start_pos / end_pos: inclusive window in protein coords
+        ede_residues: if not None, only count residues whose position is in this set
     """
     counts = defaultdict(int)
     files = glob.glob(os.path.join(bcell_dir, "epidope_output", "*", "epidope_scores.csv"))
     if not files:
-        # fall back to old predicted_epitopes.csv format
         files = glob.glob(os.path.join(bcell_dir, "epidope_output", "*", "predicted_epitopes.csv"))
     for f in files:
         try:
@@ -70,8 +72,13 @@ def count_epidope_per_serotype(bcell_dir, score_threshold=0.7):
                     if len(parts) < 3 or current_sero is None:
                         continue
                     try:
+                        pos = int(parts[0])
                         score = float(parts[2])
                     except ValueError:
+                        continue
+                    if pos < start_pos or pos > end_pos:
+                        continue
+                    if ede_residues is not None and pos not in ede_residues:
                         continue
                     if score >= score_threshold:
                         counts[current_sero] += 1
@@ -114,7 +121,8 @@ def count_discotope_per_serotype(discotope_dir, threshold=-7.7):
     return dict(counts)
 
 
-def count_strong_binders_per_serotype(tcell_dir, mhc_class, rank_cutoff):
+def count_strong_binders_per_serotype(tcell_dir, mhc_class, rank_cutoff,
+                                        start_pos=1, end_pos=99999, ede_residues=None):
     """Count strong binders (rank <= cutoff) per serotype.
     seq_num in IEDB output is 1-indexed serotype position; we map back."""
     counts_by_seq = defaultdict(int)
@@ -128,12 +136,19 @@ def count_strong_binders_per_serotype(tcell_dir, mhc_class, rank_cutoff):
                 for row in reader:
                     seq_num = row.get("seq_num", "")
                     rank = row.get("rank") or row.get("percentile_rank")
+                    start = row.get("start", "0")
                     if not rank: continue
                     try:
-                        if float(rank) <= rank_cutoff:
-                            counts_by_seq[seq_num] += 1
+                        rank_v = float(rank)
+                        start_v = int(start)
                     except ValueError:
                         continue
+                    if start_v < start_pos or start_v > end_pos:
+                        continue
+                    if ede_residues is not None and start_v not in ede_residues:
+                        continue
+                    if rank_v <= rank_cutoff:
+                        counts_by_seq[seq_num] += 1
         except Exception as e:
             print(f"  warn: {f}: {e}", file=sys.stderr)
 
@@ -175,7 +190,20 @@ def main():
     p.add_argument("--tcell_dir", required=True)
     p.add_argument("--discotope_dir", default=None)
     p.add_argument("--out_dir", required=True)
+    p.add_argument("--e_protein_only", action="store_true",
+                   help="Restrict scoring to E protein region (residues 281-775)")
+    p.add_argument("--ede_only", action="store_true",
+                   help="Restrict to EDE residues (Rouvinski 2015): polyprotein positions 348-531 with key positions filtered")
     args = p.parse_args()
+    # Define windows
+    args.start_pos = 281 if (args.e_protein_only or args.ede_only) else 1
+    args.end_pos = 775 if (args.e_protein_only or args.ede_only) else 99999
+    # EDE residues: E-coords 67-251 with quaternary contacts; key positions in polyprotein coords:
+    # E_start=281 so E_67 = polyprotein 347 (1-indexed inclusive)
+    EDE_E_RESIDUES = set(list(range(67, 77)) + list(range(99, 125))
+                         + [79, 80, 84, 86, 88, 91, 152, 153]
+                         + [246, 248, 249, 251])
+    args.ede_residues = {r + 280 for r in EDE_E_RESIDUES}  # convert to polyprotein coords
 
     os.makedirs(args.out_dir, exist_ok=True)
 
@@ -183,14 +211,21 @@ def main():
     serotypes = parse_input_fasta_serotypes(args.bcell_dir)
     print(f"serotypes detected: {serotypes}")
 
-    epi = count_epidope_per_serotype(args.bcell_dir)
-    print(f"epidope counts (high-score B-cell residues): {epi}")
+    ede_set = args.ede_residues if args.ede_only else None
+    epi = count_epidope_per_serotype(args.bcell_dir,
+                                       start_pos=args.start_pos, end_pos=args.end_pos,
+                                       ede_residues=ede_set)
+    print(f"epidope counts (high-score B-cell residues, window={args.start_pos}-{args.end_pos}, ede={args.ede_only}): {epi}")
 
-    nmpi = count_strong_binders_per_serotype(args.tcell_dir, "i", rank_cutoff=2.0)
-    print(f"netmhcpan-i strong binders (rank<=2.0): {nmpi}")
+    nmpi = count_strong_binders_per_serotype(args.tcell_dir, "i", rank_cutoff=2.0,
+                                               start_pos=args.start_pos, end_pos=args.end_pos,
+                                               ede_residues=ede_set)
+    print(f"netmhcpan-i strong binders: {nmpi}")
 
-    nmpii = count_strong_binders_per_serotype(args.tcell_dir, "ii", rank_cutoff=10.0)
-    print(f"netmhcpan-ii strong binders (rank<=10.0): {nmpii}")
+    nmpii = count_strong_binders_per_serotype(args.tcell_dir, "ii", rank_cutoff=10.0,
+                                                start_pos=args.start_pos, end_pos=args.end_pos,
+                                                ede_residues=ede_set)
+    print(f"netmhcpan-ii strong binders: {nmpii}")
 
     disco = count_discotope_per_serotype(args.discotope_dir)
     print(f"discotope geometric epitope residues (score>=-7.7): {disco}")
