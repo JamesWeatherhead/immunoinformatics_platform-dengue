@@ -20,3 +20,21 @@ maintains its own history.
 ### Notes
 - This fork preserves attribution to the upstream pipeline of Versiani et al. (Sci. Adv. 2026; 12:eaeb2066). All Nextflow workflows, container definitions, and reference data infrastructure inherit unchanged.
 - Two of the four Estofolete Table 4 rows (Tier A avidity, Tier B MBC breadth) are explicitly NOT implemented in code because they require post-Phase-1 vaccinee samples that do not exist for never-administered candidates. They are documented in the manuscript Methods as the prospective MVC validation pathway.
+
+## [2026-05-06 session-end notes]
+
+### Verified on cluster
+- Built `cd-hit-4-8-1.sif` and `cdhit-to-tsv.sif` from upstream Docker contexts
+- CD-HIT process **actually ran** on the 4 dengue polyproteins via
+  `-profile hyperplane_singularity` and produced the expected 4-cluster output
+- Pete's licenses confirmed live on cluster:
+  - Gurobi WLS credentials baked into `pmccaffrey6/jess_ev:latest` (env vars + /gurobi.lic)
+  - NetMHCpan-4.1 + NetMHCIIpan-4.3 binaries committed in `containers/netmhcpan_*/src/`
+- No new license registrations required for the dengue extension; the `register
+  for licenses` advice in the earlier runbook is superseded.
+
+### Known container compatibility issue (tractable)
+- Pete's CDHITTOTSV container fails on `np.bool` (deprecated in numpy >=1.24,
+  but pandas.util.testing still references it). Per-container fix: pin
+  pandas to >=2.0 or pin numpy to <1.24 in the relevant Dockerfile, then
+  rebuild that single SIF.
