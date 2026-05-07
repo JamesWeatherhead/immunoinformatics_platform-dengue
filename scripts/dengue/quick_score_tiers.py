@@ -80,6 +80,40 @@ def count_epidope_per_serotype(bcell_dir, score_threshold=0.7):
     return dict(counts)
 
 
+def count_discotope_per_serotype(discotope_dir, threshold=-7.7):
+    """Count residues above DiscoTope epitope threshold per serotype.
+
+    Output format from /discotope-1.1/discotope -f X.pdb -chain A:
+        chain  resnum  res3  contacts  propensity  discotope_score
+    Files at: discotope_dir/DENV-N/DENV-N_discotope.txt
+    """
+    counts = defaultdict(int)
+    if not discotope_dir or not os.path.isdir(discotope_dir):
+        return dict(counts)
+    for sero_dir in os.listdir(discotope_dir):
+        sero = sero_dir
+        path = os.path.join(discotope_dir, sero_dir)
+        if not os.path.isdir(path):
+            continue
+        files = glob.glob(os.path.join(path, "*_discotope.txt"))
+        for f in files:
+            try:
+                with open(f) as fh:
+                    for line in fh:
+                        parts = line.rstrip().split("\t")
+                        if len(parts) < 6 or not parts[0].strip().isalpha() or len(parts[0].strip()) > 2:
+                            continue
+                        try:
+                            score = float(parts[5])
+                        except ValueError:
+                            continue
+                        if score >= threshold:
+                            counts[sero] += 1
+            except Exception as e:
+                print(f"  warn: {f}: {e}", file=sys.stderr)
+    return dict(counts)
+
+
 def count_strong_binders_per_serotype(tcell_dir, mhc_class, rank_cutoff):
     """Count strong binders (rank <= cutoff) per serotype.
     seq_num in IEDB output is 1-indexed serotype position; we map back."""
@@ -150,7 +184,7 @@ def main():
     print(f"serotypes detected: {serotypes}")
 
     epi = count_epidope_per_serotype(args.bcell_dir)
-    print(f"epidope counts (high-score B-cell epitopes): {epi}")
+    print(f"epidope counts (high-score B-cell residues): {epi}")
 
     nmpi = count_strong_binders_per_serotype(args.tcell_dir, "i", rank_cutoff=2.0)
     print(f"netmhcpan-i strong binders (rank<=2.0): {nmpi}")
@@ -158,19 +192,27 @@ def main():
     nmpii = count_strong_binders_per_serotype(args.tcell_dir, "ii", rank_cutoff=10.0)
     print(f"netmhcpan-ii strong binders (rank<=10.0): {nmpii}")
 
+    disco = count_discotope_per_serotype(args.discotope_dir)
+    print(f"discotope geometric epitope residues (score>=-7.7): {disco}")
+
     # Tier A.1 (Neutralization breadth proxy): epidope hits normalized
     epi_max = max(epi.values()) if epi.values() else 1
-    epi_max = max(epi_max, 50)  # don't div-by-zero or over-amplify
+    epi_max = max(epi_max, 50)
     tier_a1 = {s: min(1.0, epi.get(s, 0) / epi_max) for s in serotypes}
+
+    # Tier A.2 (Avidity / structural proxy): DiscoTope hits normalized
+    disco_max = max(disco.values()) if disco.values() else 1
+    disco_max = max(disco_max, 50)
+    tier_a2 = {s: min(1.0, disco.get(s, 0) / disco_max) for s in serotypes}
 
     # Tier B.2 (CD8 polyfunctionality proxy): netmhcpan strong binders
     nmpi_max = max(nmpi.values()) if nmpi.values() else 1
     nmpi_max = max(nmpi_max, 100)
     tier_b2 = {s: min(1.0, nmpi.get(s, 0) / nmpi_max) for s in serotypes}
 
-    # Composite Tier A and B (avg of available sub-scores)
-    tier_a = tier_a1  # only Tier A.1 computable pre-trial
-    tier_b = tier_b2  # only Tier B.2 computable pre-trial
+    # Composite Tier A = avg(A.1, A.2). Tier B = B.2 only (B.1 is post-Phase-1).
+    tier_a = {s: (tier_a1[s] + tier_a2[s]) / 2 if tier_a2[s] > 0 else tier_a1[s] for s in serotypes}
+    tier_b = tier_b2
 
     # Write ranked_candidates.tsv
     rc_path = os.path.join(args.out_dir, "ranked_candidates.tsv")
