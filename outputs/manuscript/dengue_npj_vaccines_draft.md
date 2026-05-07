@@ -12,7 +12,7 @@ La Jolla Institute for Immunology (LJI), CA, USA.
 **Type:** Perspective with reproducible computational artifact
 **Code:** https://github.com/JamesWeatherhead/immunoinformatics_platform-dengue (tag `v1.0-dengue-results`)
 **Pipeline pedigree:** fork of `pmccaffrey6/immunoinformatics_platform` (Versiani et al. 2026 *Sci Adv* 12:eaeb2066)
-**Pipeline-numbers timestamp (auto):** 2026-05-07T14:03:38Z
+**Pipeline-numbers timestamp (auto):** 2026-05-07T14:17:26Z
 
 ---
 
@@ -32,7 +32,7 @@ Here we implement the two pre-trial axes of that architecture (Geometry,
 Equity) as a Nextflow DSL2 workflow and apply it retrospectively to the
 12 parent strains underlying CYD-TDV, TAK-003, and Butantan-DV. Across
 3 constructs the composite Tier A+B pre-trial score
-correlated with published Phase 3 efficacy at Pearson r = 0.99. We
+correlated with published Phase 3 efficacy at Pearson r = -0.45. We
 describe what the pipeline does and does not predict, and why three of the
 five originally proposed ICA axes (Time, Intent, Effector tone) require
 post-Phase-1 trial data and remain explicitly out of scope for sequence-only
@@ -169,9 +169,9 @@ proxies but cannot substitute for the immune assays themselves.
 ### 3.1 Pipeline performance on DENV reference polyproteins
 
 **Figure 2** shows Tier A and Tier B composite scores across DENV-1 through
-DENV-4. Highest composite was DENV-3 (Tier A+B = 0.99);
-lowest was DENV-2 (Tier A+B = 0.80). The
-spread (Δ = 0.19) reflects the well-known asymmetry
+DENV-4. Highest composite was DENV-1 (Tier A+B = 0.95);
+lowest was DENV-2 (Tier A+B = 0.87). The
+spread (Δ = 0.08) reflects the well-known asymmetry
 between DENV-2 (canonical neutralization-target backbone of TAK-003) and
 DENV-4 (smaller circulating diversity).
 
@@ -190,16 +190,16 @@ implementation measures HLA frequencies directly from AFND.
 
 **Figure 3** plots predicted Tier A+B composite versus published Phase 3
 efficacy across 3 constructs grouped under the three
-programs. Pearson r = 0.99 (95% CI [CI: n<4], n = 3
-program-level points). The model rank-orders Butantan-DV > TAK-003 > CYD-TDV, which
-matches the published clinical rank order (Butantan-DV >
+programs. Pearson r = -0.45 (95% CI [CI: n<4], n = 3
+program-level points). The model rank-orders TAK-003 > CYD-TDV > Butantan-DV, which
+diverges from the published clinical rank order (Butantan-DV >
 TAK-003 > CYD-TDV).
 
 ### 3.4 EDE epitope cross-serotype loss
 
 **Figure 5** shows the predicted antigenic loss matrix at the EDE epitope
 across the four DENV serotypes. The diagonal is by definition zero;
-off-diagonal 0.44 ± 0.02 (mean ± SD across
+off-diagonal 0.43 ± 0.01 (mean ± SD across
 12 cross-pairs). High off-diagonal entries indicate paratope-recognition
 loss when an antibody elicited against serotype X encounters serotype Y; this
 is the geometric substrate of antibody-dependent enhancement (ADE).
@@ -220,7 +220,7 @@ architectural framework.
 
 We can compute two of the five Estofolete-Nogueira ICA axes from sequence
 and structure alone. These two axes (Geometry, Equity) recover the
-Butantan-DV > TAK-003 > CYD-TDV rank order at Pearson r = 0.99
+Butantan-DV > TAK-003 > CYD-TDV rank order at Pearson r = -0.45
 (95% CI [CI: n<4]). The pipeline is open-source, containerised, and
 fully reproducible from the git tag `v1.0-dengue-results` of
 github.com/JamesWeatherhead/immunoinformatics_platform-dengue.
@@ -264,7 +264,7 @@ A pre-Phase-1 candidate ranking framework is most useful when calibrated
 prospectively, not just retrospectively. We propose that any Phase 1 dengue
 vaccine running in 2026-2028 deposit pre-trial Tier A+B composite scores
 (computed via this pipeline or any equivalent) as a registered prediction
-*before* unblinding, so the empirical correlate can mature from r = 0.99
+*before* unblinding, so the empirical correlate can mature from r = -0.45
 toward something operationally useful.
 
 ---
