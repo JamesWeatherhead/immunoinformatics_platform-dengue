@@ -127,33 +127,48 @@ if (( missing_dbs > 0 )); then
 fi
 
 # ----------------------------------------------------------------------------
-# Step 4: Dispatch 4 AlphaFold-Multimer jobs (one per DENV serotype)
-# Distribute across 8 A100s: 2 GPUs per job (jobs 1+2 share GPU pairs as multimer
-# uses GPU memory ~30GB; A100-80GB easily fits 2 chains per GPU)
+# Step 4: Dispatch AlphaFold-Multimer jobs SERIALLY for the MSA stage.
+#
+# Why serial, not parallel:
+#   The previous version dispatched 4 jobs in parallel with a 30s stagger.
+#   All 4 failed at HHblits within 16s with EMPTY stderr. Root cause:
+#   each HHblits process mmaps the BFD ffindex/ffdata (~1.7TB on disk,
+#   ~30GB resident); 4 concurrent processes blow through the kernel page
+#   cache and either (a) saturate /data NFS I/O so HHblits times out
+#   without flushing stderr, or (b) trip the OOM killer (SIGKILL leaves
+#   stderr empty — that is exactly the symptom). 30s stagger does nothing
+#   because BFD residency lasts the entire ~3-4 hour HHblits run.
+#
+#   Fix: run the full pipeline (Jackhmmer + HHblits + inference) one
+#   serotype at a time. Each job gets ALL 8 GPUs for the (cheap, ~10 min)
+#   inference stage, and only one HHblits process touches BFD at a time.
+#   Total wall time: ~4 jobs * ~3.5h = ~14h, vs. 4 silent failures.
+#
+# Knob if you want more parallelism later:
+#   PARALLEL_AF_JOBS=2 yields 2 concurrent HHblits processes; the 80GB
+#   A100 host with ~250GB RAM handles 2 BFD residents but not 4. Do NOT
+#   raise above 2 without first staging cs219 to NVMe and benchmarking.
 # ----------------------------------------------------------------------------
-log "step 4: dispatching 4 AlphaFold-Multimer jobs in parallel"
+PARALLEL_AF_JOBS="${PARALLEL_AF_JOBS:-1}"
+log "step 4: dispatching AlphaFold-Multimer jobs (PARALLEL_AF_JOBS=$PARALLEL_AF_JOBS)"
 
-declare -a af_pids=()
-gpu_assignments=("0,1" "2,3" "4,5" "6,7")
-i=0
+# All-GPU assignment for serial mode; only used when PARALLEL_AF_JOBS=1.
+gpu_all="0,1,2,3,4,5,6,7"
+gpu_pair_assignments=("0,1" "2,3" "4,5" "6,7")
 
-for fasta in "$E_FASTA_DIR"/*.fasta; do
+run_one_af_job() {
+    local fasta="$1"
+    local gpus="$2"
+    local name
     name=$(basename "$fasta" .fasta)
-    job_outdir="$OUTDIR/$name"
+    local job_outdir="$OUTDIR/$name"
     mkdir -p "$job_outdir"
     if [[ -f "$job_outdir/ranked_0.pdb" ]]; then
         log "  $name: ranked_0.pdb exists; skipping"
-        continue
+        return 0
     fi
-    gpus="${gpu_assignments[$i]}"
-    i=$((i + 1))
-    log "  dispatching $name on GPUs $gpus"
+    log "  running $name on GPUs $gpus"
     if [[ "$AF_RUNTIME" == "apptainer" ]]; then
-        # apptainer run on the catgumag/alphafold:2.3.2 image invokes
-        # /app/run_alphafold.sh which is `python /app/alphafold/run_alphafold.py "$@"`.
-        # We pass standard run_alphafold.py flags. The data_dir flag alone
-        # is not sufficient — we must give explicit paths for each DB
-        # because run_alphafold.py does not auto-derive them.
         apptainer run --nv \
             --bind "$AF_DBS":/dbs \
             --bind "$OUTDIR":/out \
@@ -172,8 +187,9 @@ for fasta in "$E_FASTA_DIR"/*.fasta; do
             --pdb_seqres_database_path=/dbs/pdb_seqres/pdb_seqres.txt \
             --uniprot_database_path=/dbs/uniprot/uniprot.fasta \
             --max_template_date=2024-01-01 \
+            --use_precomputed_msas=true \
             --use_gpu_relax=true \
-            >> "$LOG" 2>&1 &
+            >> "$LOG" 2>&1
     else
         docker run --rm --gpus "device=$gpus" \
             -v "$AF_DBS":/dbs \
@@ -184,27 +200,45 @@ for fasta in "$E_FASTA_DIR"/*.fasta; do
             --model_preset=multimer \
             --data_dir=/dbs \
             --max_template_date=2024-01-01 \
+            --use_precomputed_msas=true \
             --use_gpu_relax=true \
-            >> "$LOG" 2>&1 &
+            >> "$LOG" 2>&1
     fi
-    af_pids+=("$!")
-    log "  $name PID: $!"
-    sleep 30  # Stagger MSA database access
-done
+}
 
-log "  all 4 AlphaFold jobs dispatched; waiting for completion (~6-12h each)"
-
-# ----------------------------------------------------------------------------
-# Step 5: Wait for all AlphaFold jobs
-# ----------------------------------------------------------------------------
-log "step 5: waiting for all AlphaFold jobs"
-for pid in "${af_pids[@]}"; do
-    if wait "$pid"; then
-        log "  PID $pid: SUCCESS"
+declare -a af_pids=()
+i=0
+for fasta in "$E_FASTA_DIR"/*.fasta; do
+    name=$(basename "$fasta" .fasta)
+    if (( PARALLEL_AF_JOBS <= 1 )); then
+        # SERIAL: one HHblits at a time, all 8 GPUs each.
+        run_one_af_job "$fasta" "$gpu_all" \
+            && log "  $name: SUCCESS" \
+            || log "  $name: FAILED (continuing with remaining serotypes)"
     else
-        log "  PID $pid: FAILED (non-fatal; other jobs continue)"
+        # BOUNDED PARALLEL: at most PARALLEL_AF_JOBS HHblits processes live.
+        while (( $(jobs -rp | wc -l) >= PARALLEL_AF_JOBS )); do
+            sleep 60
+        done
+        gpus="${gpu_pair_assignments[$((i % 4))]}"
+        i=$((i + 1))
+        run_one_af_job "$fasta" "$gpus" &
+        af_pids+=("$!")
+        log "  $name PID: $!  GPUs=$gpus"
+        sleep 300  # 5-min stagger so HHblits database paging settles before next launch
     fi
 done
+
+if (( PARALLEL_AF_JOBS > 1 )); then
+    log "step 5: waiting for ${#af_pids[@]} parallel jobs"
+    for pid in "${af_pids[@]}"; do
+        if wait "$pid"; then
+            log "  PID $pid: SUCCESS"
+        else
+            log "  PID $pid: FAILED (non-fatal; other jobs continue)"
+        fi
+    done
+fi
 
 # ----------------------------------------------------------------------------
 # Step 6: Mark complete

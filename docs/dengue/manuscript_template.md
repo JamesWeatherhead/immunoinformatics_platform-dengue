@@ -298,13 +298,15 @@ toward something operationally useful.
 load-bearing claim has a primary measurement source. Bib file:
 `docs/dengue/dengue_perspective.bib`.)
 
-Key anchors:
+Key anchors (verified via paperclip + NCBI E-utilities, 2026-05-07):
   - Bhatt S et al. The global distribution and burden of dengue. *Nature* 2013;496:504-7.
-  - Sridhar S et al. Effect of dengue serostatus on dengue vaccine safety and efficacy. *N Engl J Med* 2018;379:327-340.
-  - Tricou V et al. Long-term efficacy and safety of TAK-003. *N Engl J Med* 2024;390:1226-1236.
-  - Kallas EG et al. Live, attenuated, tetravalent Butantan-Dengue vaccine. *N Engl J Med* 2024;390:397-408.
-  - Estofolete CF, Nogueira ML et al. Composite immune correlates and the dengue vaccine efficacy gap. *npj Vaccines* 2026;11:68.
-  - Versiani AF, McCaffrey P et al. immunoinformatics_platform: a Nextflow workflow for multi-axis epitope scoring. *Sci Adv* 2026;12:eaeb2066.
+  - Sridhar S et al. Effect of dengue serostatus on dengue vaccine safety and efficacy. *N Engl J Med* 2018;379:327-340. PMID:29897841. (Reports HRs by serostatus, not classical VE %.)
+  - Tricou V et al. Long-term efficacy and safety of a tetravalent dengue vaccine (TAK-003): a randomised, double-blind, placebo-controlled, phase 3 trial. *Lancet Glob Health* 2024;12(2):e257-e270. PMID:38245116. Overall VE 61.2% (56.0-65.8) any VCD; 84.1% (77.8-88.6) hospitalized; 4-16y, 4.5y follow-up.
+  - Kallas EG et al. Live, attenuated, tetravalent Butantan-Dengue vaccine in children and adults. *N Engl J Med* 2024;390:397-408. PMID:38294972. Overall 2y VE 79.6% (70.0-86.3); seropositive 89.2%; seronegative 73.6%; DENV-1 89.5%; DENV-2 69.6%.
+  - Estofolete CF, Saivish MV, Nogueira ML, Vasilakis N. From promise to pitfalls: immunological lessons from dengue vaccines and their implications. *npj Vaccines* 2026;11:68. doi:10.1038/s41541-026-01400-4.
+  - Versiani AF, McCaffrey P et al. Iterative Vaccine Design in an Era of Emerging Infectious Disease. *Sci Adv* 2026 (in press; DOI pending). Software: github.com/pmccaffrey6/immunoinformatics_platform tag v1.0.
+  - Rouvinski A et al. Recognition determinants of broadly neutralising human antibodies against dengue viruses. *Nature* 2015;520:109-113. (EDE residue list used to restrict Tier A scoring.)
+  - Modis Y et al. A ligand-binding pocket in the dengue virus envelope glycoprotein. *Proc Natl Acad Sci* 2003;100:6986-6991. (PDB 1OAN, DENV-2 dimer used in our DiscoTope ensemble.)
 
 ---
 

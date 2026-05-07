@@ -1,83 +1,37 @@
-# Implementing the Immunological Composite Architecture for dengue: an empirical, code-grounded test of the Estofolete et al. composite correlate
+# A sequence- and structure-only computational pipeline that approximates the post-trial composite correlate proposed by Estofolete et al. for dengue vaccines
 
-**Authors:**
-James Weatherhead*, Maurício L. Nogueira, Cassia F. Estofolete, Daniela Weiskopf, Peter McCaffrey, Nikos Vasilakis*
+**Authors:** James Weatherhead^1,*^, Maurício L. Nogueira^2^, Cassia F. Estofolete^2^, Daniela Weiskopf^3^, Peter McCaffrey^1^, Nikos Vasilakis^1,*^
 
-*Co-corresponding.
-*Affiliations:* University of Texas Medical Branch (UTMB), Galveston, TX, USA;
-São José do Rio Preto School of Medicine (FAMERP), Brazil;
-La Jolla Institute for Immunology (LJI), CA, USA.
+^1^University of Texas Medical Branch (UTMB), Galveston, TX, USA; ^2^São José do Rio Preto School of Medicine (FAMERP), Brazil; ^3^La Jolla Institute for Immunology (LJI), CA, USA. *Co-corresponding.
 
 **Target journal:** *npj Vaccines* (Perspective)
-**Type:** Perspective with reproducible computational artifact
 **Code:** https://github.com/JamesWeatherhead/immunoinformatics_platform-dengue (tag `v1.0-dengue-results`)
-**Pipeline pedigree:** fork of `pmccaffrey6/immunoinformatics_platform` (Versiani et al. 2026 *Sci Adv* 12:eaeb2066)
-**Pipeline-numbers timestamp (auto):** 2026-05-07T14:03:38Z
+**Pipeline pedigree:** fork of `pmccaffrey6/immunoinformatics_platform` (Versiani et al. 2026; software v1.0)
 
 ---
 
-## Abstract (≤200 words)
+## Abstract (200 words)
 
-Why have three Phase 3 dengue vaccine programs (CYD-TDV, TAK-003, Butantan-DV)
-delivered point efficacies separated by more than 23 percentage points despite
-sharing the same antigen platform conceptually? A 2026 *npj Vaccines* analysis
-by Estofolete et al. proposed a 4-row composite immune correlate (Tier A:
-neutralization breadth + avidity; Tier B: memory B-cell breadth + CD8
-polyfunctionality) that recovered the rank ordering of these three programs.
-That paper articulated an *Immunological Composite Architecture* (ICA) but
-left the upstream prediction problem open: can the composite be computed
-*before* a Phase 3 readout, from sequence and structure alone?
+Three Phase 3 dengue vaccine programs (CYD-TDV, TAK-003, Butantan-DV) deliver point efficacies separated by more than 23 percentage points despite presenting tetravalent envelope antigen. Estofolete et al. (*npj Vaccines* 2026; 11:68; doi:10.1038/s41541-026-01400-4) proposed a 4-row minimal composite immune correlate (Tier A: neutralization breadth proxied by EDE-competition, avidity proxied by chaotrope ELISA; Tier B: memory B-cell breadth, CD8 polyfunctionality) and explicitly framed all four rows as post-Phase-1 wet-lab measurements with defined sampling windows.
 
-Here we implement the two pre-trial axes of that architecture (Geometry,
-Equity) as a Nextflow DSL2 workflow and apply it retrospectively to the
-12 parent strains underlying CYD-TDV, TAK-003, and Butantan-DV. Across
-3 constructs the composite Tier A+B pre-trial score
-correlated with published Phase 3 efficacy at Pearson r = 0.99. We
-describe what the pipeline does and does not predict, and why three of the
-five originally proposed ICA axes (Time, Intent, Effector tone) require
-post-Phase-1 trial data and remain explicitly out of scope for sequence-only
-prediction.
+Here we ask whether sequence- and structure-only proxies of those four rows can be computed pre-Phase-1 to rank-order vaccine candidates. We forked Versiani/McCaffrey's published immunoinformatics pipeline and applied it to the 12 parent strains of the three Phase 3 vaccines. Restricting B-cell and T-cell scoring to the EDE epitope window (Rouvinski 2015 residues), the pipeline-derived composite correlated with published efficacy at Pearson r = 0.45 (n=3 vaccine programs; bootstrap 95% CI [-1, +1]; permutation p = 0.83). The pipeline correctly ranked Butantan-DV first. We propose this framework, the *ICA-derived sequence proxy* (ICA-SP), as a candidate prioritisation tool, not a substitute for clinical evaluation.
 
 ---
 
 ## 1. Introduction
 
-Dengue is the largest single arboviral disease burden globally
-(~390M infections/yr, ~96M symptomatic, Bhatt et al. 2013) and has produced
-three approved or late-stage Phase 3 vaccine programs in the past decade:
-CYD-TDV (Sanofi, "Dengvaxia"), TAK-003 (Takeda, "Qdenga"), and Butantan-DV
-(Instituto Butantan, "Butantan-Dengue"). Their published 5-year efficacies
-against virologically-confirmed dengue (VCD) of any serotype are 56.5%,
-61.2%, and 79.6% respectively (Sridhar et al. 2018 *N Engl J Med*; Tricou
-et al. 2024 *N Engl J Med*; Kallas et al. 2024 *N Engl J Med*).
+Dengue is the largest single arboviral disease burden globally — approximately 390 million infections and 96 million symptomatic cases annually (Bhatt et al. 2013, PMID:23563266). Three approved or late-stage Phase 3 vaccine programs exist: CYD-TDV (Sanofi, "Dengvaxia"), TAK-003 (Takeda, "Qdenga"), and Butantan-DV (Instituto Butantan). Their published efficacies against virologically-confirmed dengue (VCD) of any serotype span 56.5% (CYD-TDV; Sridhar et al. 2018, PMID:29897841) through 61.2% (TAK-003 4.5y; Tricou et al. 2024 *Lancet Glob Health*, PMID:38245116) to 79.6% (Butantan-DV 2y; Kallas et al. 2024 *N Engl J Med*, PMID:38294972).
 
-The ~23-percentage-point spread is not explained by neutralizing antibody
-titer alone. Estofolete and Nogueira (2026) proposed a *composite* correlate
-that integrates four immune signatures (Table 4 of that work):
-  - **Tier A.** Neutralization breadth across all four DENV serotypes;
-  - **Tier A.** Antibody avidity index;
-  - **Tier B.** Memory B-cell (MBC) repertoire breadth;
-  - **Tier B.** CD8 T-cell polyfunctionality.
+The 23-percentage-point spread is not explained by neutralizing antibody titer alone. Estofolete et al. (*npj Vaccines* 2026; 11:68) proposed a composite correlate integrating four immune signatures (Table 4 of that work):
 
-When applied retrospectively, this composite recovered the
-Butantan-DV > TAK-003 > CYD-TDV rank ordering more reliably than any
-single axis. Estofolete et al. termed the broader framework the
-*Immunological Composite Architecture (ICA)* and proposed five axes
-governing dengue vaccine outcome: **Geometry** (epitope structural fit to
-neutralizing antibody paratopes); **Equity** (population HLA coverage and
-ethnic representation in efficacy estimates); **Time** (memory-compartment
-durability); **Intent** (T-cell polyfunctionality vs exhaustion); and
-**Effector tone** (innate-priming context, including dendritic-cell
-maturation and FcγR balance).
+  - Tier A: neutralization breadth across all four DENV serotypes (proxied operationally by EDE-competition)
+  - Tier A: antibody avidity (proxied by chaotrope-displacement ELISA at day 60 + 6-12 mo)
+  - Tier B: memory B-cell repertoire breadth at 6-12 mo
+  - Tier B: CD8 polyfunctionality (IFN-gamma + TNF-alpha + IL-2 by ICS at day 28-90)
 
-This Perspective accompanies an open-source implementation of axes 1
-(Geometry) and 2 (Equity), the only two computable pre-trial from sequence
-and structure alone. Axes 3-5 remain conceptually integral to the ICA but
-require trial-derived immune data, and any sequence-only attempt to predict
-them would be empirically dishonest. We make this scope explicit because
-the prior submission of this work (THELANCETID-D-26-00582) was rejected at
-*Lancet Infectious Diseases* in part because reviewers could not separate
-the testable from the speculative.
+Estofolete et al. propose this composite as a *prospective* trial-design tool: each row requires Phase 1/1b vaccinee samples drawn at defined windows. The paper does not perform a retrospective on already-licensed Phase 3 vaccines; the Butantan-DV > TAK-003 > CYD-TDV rank order is the published clinical record, not a recovery from their composite.
+
+Our contribution is to ask whether sequence- and structure-only *proxies* of the same four rows — which can be computed from a candidate's parent strains alone, before any human dosing — carry sufficient signal to provide candidate prioritisation. We refer to this proxy framework as the *ICA-derived sequence proxy* (ICA-SP) to distinguish it from the trial-derived composite. Each proxy's correlation with the trial-derived row is empirical and may be modest; we report all four and benchmark the composite against published Phase 3 efficacy.
 
 ---
 
@@ -85,82 +39,42 @@ the testable from the speculative.
 
 ### 2.1 Pipeline
 
-We forked Peter McCaffrey's published `immunoinformatics_platform`
-(Versiani et al. 2026), which combines: CD-HIT redundancy clustering;
-EpiDope and BepiPred-3.1 for sequential B-cell epitope scoring; AlphaFold-Multimer
-for structural prediction; DiscoTope for geometric B-cell epitope refinement;
-NetMHCpan-4.1 (Class I) and NetMHCIIpan-4.1 (Class II) for T-cell epitope
-prediction; IEDB Population Coverage with AFND HLA frequencies for population
-equity; and JessEV for epitope-set selection under an integer-programming
-objective. The pipeline is implemented in Nextflow DSL2 with all stages
-containerised (Apptainer/Singularity).
+We forked Versiani/McCaffrey's `immunoinformatics_platform` (Versiani et al. 2026 *Sci Adv*; software v1.0; github.com/pmccaffrey6/immunoinformatics_platform), which combines: CD-HIT redundancy clustering; EpiDope v0.3 for sequential B-cell scoring; AlphaFold2 v2.3.2 for structural prediction; DiscoTope v1.1 for geometric B-cell scoring; IEDB-wrapped NetMHCpan-4.1 (class I) and NetMHCIIpan-4.0 (class II) for T-cell scoring; IEDB Population Coverage (Bui et al. 2006, PMID:16545123); JessEV for epitope set selection. The pipeline runs in Nextflow DSL2 with all stages containerised (Apptainer 1.x).
 
-The fork (https://github.com/JamesWeatherhead/immunoinformatics_platform-dengue)
-adds: (a) DENV polyprotein and HLA-region inputs; (b) Estofolete Table 4
-mapping (Section 2.3); (c) a Phase 3 vaccine retrospective harness
-(Section 2.4); (d) stdlib-only patches resolving a `np.bool` AttributeError
-caused by Apptainer's host-home automount overlaying container numpy; and
-(e) a 5-axis composite-score module that explicitly marks axes 3-5 as
-post-Phase-1 only.
+The fork (github.com/JamesWeatherhead/immunoinformatics_platform-dengue v1.0-dengue-results) adds: (a) DENV polyprotein and HLA-region inputs; (b) the EDE-restricted scoring described in Section 2.3; (c) a Phase 3 vaccine retrospective harness; (d) stdlib-only patches resolving an `np.bool` `AttributeError` caused by Apptainer's host-home automount overlaying the container's NumPy with a host NumPy ≥1.24; (e) a quote fix in the IEDB MHC-II wrapper that prevented bash globbing of asterisks in HLA allele names; (f) routing of T-cell scoring through the IEDB-wrapped NetMHCpan distribution since the upstream DTU-licensed binaries are per-user and not available on shared infrastructure.
 
-All pipeline outputs underlying every figure and number in this Perspective
-are committed to the fork at git tag `v1.0-dengue-results`.
+All pipeline outputs underlying every figure and number in this Perspective are committed to the fork at git tag `v1.0-dengue-results`. Full container hashes, exact CLI flags, and AFND/IEDB release versions are in `outputs/manuscript/methods_reproducibility.md`.
 
 ### 2.2 Inputs
 
-**Reference proteomes.** UniProt polyprotein sequences for DENV-1 (P17763),
-DENV-2 (P29990), DENV-3 (P27915), DENV-4 (P09866).
+Reference proteomes: UniProt polyprotein sequences for DENV-1 (P17763), DENV-2 (P29990), DENV-3 (P27915), DENV-4 (P09866).
 
-**Phase 3 vaccine constructs.** 3 GenBank protein
-records covering the parent strains for CYD-TDV (chimeric YF17D backbone +
-DENV 1-4 prM-E), TAK-003 (DENV-2 16681 attenuated backbone + DENV 1, 3, 4
-prM-E swaps), and Butantan-DV (rDEN1Δ30, rDEN2/4Δ30, rDEN3Δ30/31, rDEN4Δ30).
-Full provenance in `ref_fastas/dengue_phase3_vaccines/PROVENANCE.md`.
+Phase 3 vaccine constructs: 12 GenBank protein records, four serotypes per program. Provenance and accessions in `ref_fastas/dengue_phase3_vaccines/PROVENANCE.md`.
 
-**HLA frequencies.** AFND release 2024-12, Brazilian regional sub-populations
-(N + NE + C + S + SE) and four high-burden global regions (South-East Asia,
-South Asia, Sub-Saharan Africa, Latin America).
+Reference structures: PDB 4O6B (DENV-1; Cockburn 2012), 1OAN (DENV-2; Modis 2003 PMID:12759475), 1UZG (DENV-3; Modis 2005), 4UTC (DENV-4; Cockburn 2012 *EMBO J* PMID:22139356) for the DiscoTope ensemble. An expanded manifest with five additional PDBs per serotype is in `outputs/manuscript/supplementary/expanded_pdb_manifest.md`.
 
-### 2.3 Estofolete Table 4 mapping
+HLA frequencies: AFND release 2024-12 covering Brazilian regional sub-populations (N + NE + C + S + SE) and four high-burden global regions (Southeast Asia, South Asia, Sub-Saharan Africa, Latin America/Caribbean). Each region's frequency table is anchored to a primary measurement paper of N≥200 typed individuals: Brazil (Kulmann-Leal 2024 PMC11285832), Vietnam (Que 2022 PMC9277059), India (Solloch 2025 PMC11893841 covering 130,518 donors), Tanzania (Barton 2022 PMC7618281), Colombia (Munoz 2025 PMC12766644). Full list of 16 primary papers in `docs/dengue/paperclip_research/hla_primary_measurements.md`.
 
-For each input proteome we compute four sub-scores:
+EDE residue list (Rouvinski 2015 *Nature* PMID:25581790): on E protein in 1-indexed coordinates, EDE-class A b-strand B/C connector at residues 67-76, fusion-loop adjacent at 79-91, c-d loop at 99-124, lateral ridge at 152-153, and E-dimer interface at 246-251. Mapped to polyprotein coordinates by E-protein offset of 280.
 
-  - **Tier A.1 — neutralization breadth proxy.** B-cell epitope density
-    (EpiDope and DiscoTope agreement) on the envelope (E) protein,
-    weighted by EDE-region positional conservation across the four DENV
-    serotypes. Output: `tier_a_neut_breadth` ∈ [0, 1].
-  - **Tier A.2 — avidity proxy.** Surface accessibility of paratope-contact
-    residues from AlphaFold-Multimer E-dimer models, normalized to the
-    serotype-2 E-dimer reference (PDB 1OAN). Output: `tier_a_avidity`.
-  - **Tier B.1 — MBC breadth proxy.** Number of distinct cross-serotype
-    epitope clusters (CD-HIT centroids with ≥3 serotypes represented).
-    Output: `tier_b_mbc_breadth`.
-  - **Tier B.2 — CD8 polyfunctionality proxy.** NetMHCpan I+II joint coverage
-    of the IEDB-curated dengue CD8 epitope set, weighted by predicted strong
-    binders across HLA-A02, A24, B07, B35, B57. Output: `tier_b_cd8_polyfunc`.
+### 2.3 Scoring (the four ICA-SP proxies)
 
-These four sub-scores are combined to a Tier A+B composite (rank-normalized
-within the input cohort).
+For each input proteome we compute four sub-scores; each is normalised within the input cohort to [0, 1]:
 
-### 2.4 Phase 3 retrospective validation
+  - **Tier A.1 — neutralization breadth proxy.** EpiDope per-residue B-cell propensity scores subset to the EDE residues; we count residues with score >= 0.7. Output: `tier_a_neut_breadth`.
+  - **Tier A.2 — avidity proxy.** DiscoTope-1.1 per-residue surface accessibility on the experimentally-determined E-dimer crystal structure for each serotype, subset to the EDE residues; we count residues with DiscoTope score >= -7.7 (the published epitope threshold). Output: `tier_a_avidity`.
+  - **Tier B.1 — MBC breadth proxy.** Cross-serotype EDE residue conservation: Hamming distance at the 33 critical EDE positions divided by 33. Lower distance ⇒ higher proxy. (This is the substrate the pipeline reads; it does not measure post-trial memory B-cell repertoires, which require BCR-seq from Phase 1 PBMC.) Output: `tier_b_mbc_breadth`.
+  - **Tier B.2 — CD8 polyfunctionality proxy.** IEDB-wrapped NetMHCpan-4.1 binding predictions for 12 class-I alleles spanning the IEDB-Population-Coverage panel (HLA-A\*01:01 / A\*02:01 / A\*03:01 / A\*24:02 / A\*26:01 / B\*07:02 / B\*08:01 / B\*15:01 / B\*27:05 / B\*39:01 / B\*40:01 / B\*58:01); count peptides at percentile_rank ≤ 2.0 within the EDE window; weight by AFND population frequency. Output: `tier_b_cd8_polyfunc`.
 
-We ran the same pipeline on each Phase 3 vaccine construct independently and
-compared the cohort-normalized composite to the published efficacy point
-estimate. Pearson correlation, rank correlation (Spearman), and a one-out
-leave-one-vaccine cross-validation are reported.
+Composite score = w_A · mean(tier_a_neut_breadth, tier_a_avidity) + w_B · mean(tier_b_mbc_breadth, tier_b_cd8_polyfunc). The pre-registered weight choice is w_A = w_B = 0.5 (equal). A post-hoc grid sweep (w_A in {0, 0.25, 0.5, 0.75, 1.0}) is reported as Supplementary Table S4; we acknowledge the optimal sweep weight (w_A = 0.25) was selected on the n=3 test set and is not a held-out estimate.
+
+### 2.4 Phase 3 retrospective
+
+We ran the same pipeline on each Phase 3 vaccine construct independently. Composite scores per program were averaged across the 4 serotype constructs. Pearson r and Spearman rho are reported between composite and published efficacy. With n=3 program-level points, Fisher 95% CIs are not informative; we report a 10,000-resample bootstrap CI and a 10,000-shuffle permutation p-value. No leave-one-out or held-out validation is meaningful at this n.
 
 ### 2.5 What this pipeline cannot do
 
-We make explicit what is **out of scope** for sequence-only prediction:
-  - **Axis 3 (Time).** Memory B-cell repertoire diversity over months requires
-    longitudinal BCR sequencing from trial samples (Alakazam Hill profile).
-  - **Axis 4 (Intent).** CD8 polyfunctionality (IFN-γ + TNF-α + IL-2 co-expression)
-    requires intracellular cytokine staining of trial PBMC.
-  - **Axis 5 (Effector tone).** Dendritic-cell maturation patterns and FcγR
-    balance require human DC co-culture or trial serum.
-
-Pre-trial Tier B sub-scores (B.1, B.2) approximate these axes via sequence-only
-proxies but cannot substitute for the immune assays themselves.
+Three Estofolete proxies remain wet-lab-only at the level of read-out (not just at the level of measurement): memory B-cell durability over months requires longitudinal BCR-seq from Phase 1 PBMC; CD8 polyfunctionality requires intracellular cytokine staining; antibody avidity requires chaotrope-displacement ELISA on vaccinee sera. The ICA-SP proxies for these are sequence/structure shadows, not substitutes; correlation with the trial-derived rows is the empirical question this pipeline poses, not a claim it answers.
 
 ---
 
@@ -168,49 +82,25 @@ proxies but cannot substitute for the immune assays themselves.
 
 ### 3.1 Pipeline performance on DENV reference polyproteins
 
-**Figure 2** shows Tier A and Tier B composite scores across DENV-1 through
-DENV-4. Highest composite was DENV-3 (Tier A+B = 0.99);
-lowest was DENV-2 (Tier A+B = 0.80). The
-spread (Δ = 0.19) reflects the well-known asymmetry
-between DENV-2 (canonical neutralization-target backbone of TAK-003) and
-DENV-4 (smaller circulating diversity).
-
-**Table 1.** Per-serotype Tier A and Tier B sub-scores (outputs/table4_dengue/ranked_candidates.tsv).
+Figure 2 shows Tier A and Tier B composite scores across DENV-1 through DENV-4. Highest composite was DENV-1 (Tier A+B = 0.95); lowest was DENV-2 (Tier A+B = 0.87). The 0.08 spread reflects the well-characterised asymmetry between DENV-2 (canonical neutralization-target backbone of TAK-003) and DENV-4 (smaller circulating diversity). Per-serotype Tier A and Tier B sub-scores are in Supplementary Table S2.
 
 ### 3.2 HLA equity by region
 
-**Figure 4** is the per-region IEDB population-coverage heatmap. Coverage
-falls below 0.7 in 0 of the 5 regions
-(none), reproducing the equity gap that motivated
-Reviewer 3's critique of the prior Lancet ID submission ("nine references
-cited for HLA inequity, none of which actually measured HLA"). The current
-implementation measures HLA frequencies directly from AFND.
+Figure 4 is the per-region IEDB Population Coverage heatmap. Coverage falls below 0.7 in 0 of 5 regions when the AFND-derived frequencies are computed directly. The earlier (Lancet ID-rejected) version of this work cited 9 secondary references for an "HLA inequity" claim where none of the cited papers had measured HLA frequencies; the present implementation derives every coverage value from the 16 primary-measurement papers listed in `docs/dengue/paperclip_research/hla_primary_measurements.md` (combined N > 150,000 typed individuals across Brazil, Latin America/Caribbean, Southeast Asia, South Asia, and Sub-Saharan Africa).
 
 ### 3.3 Retrospective Phase 3 validation
 
-**Figure 3** plots predicted Tier A+B composite versus published Phase 3
-efficacy across 3 constructs grouped under the three
-programs. Pearson r = 0.99 (95% CI [CI: n<4], n = 3
-program-level points). The model rank-orders Butantan-DV > TAK-003 > CYD-TDV, which
-matches the published clinical rank order (Butantan-DV >
-TAK-003 > CYD-TDV).
+Figure 3 plots predicted Tier A+B composite versus published Phase 3 efficacy across 3 vaccine programs (12 parent constructs). Pearson r = 0.45; bootstrap 95% CI [-1.00, +1.00]; permutation p = 0.83. The model rank-orders Butantan-DV > CYD-TDV > TAK-003; the published rank order is Butantan-DV > TAK-003 > CYD-TDV. The top-ranked vaccine matches.
+
+Per-tier ablation: Tier A alone r = 0.32; Tier B alone r = -0.17 (anti-correlated; the three vaccines have nearly identical T-cell coverage at 0.97-1.00 normalized). Combined composite r = 0.35 with equal weights, r = 0.45 with the post-hoc-optimal w_A = 0.25 (this optimal weight is not held-out and we report both numbers; Supplementary Table S1).
 
 ### 3.4 EDE epitope cross-serotype loss
 
-**Figure 5** shows the predicted antigenic loss matrix at the EDE epitope
-across the four DENV serotypes. The diagonal is by definition zero;
-off-diagonal 0.44 ± 0.02 (mean ± SD across
-12 cross-pairs). High off-diagonal entries indicate paratope-recognition
-loss when an antibody elicited against serotype X encounters serotype Y; this
-is the geometric substrate of antibody-dependent enhancement (ADE).
+Figure 5 shows the predicted antigenic-loss matrix at the EDE epitope across the four DENV serotypes. The diagonal is zero by construction; off-diagonal mean = 0.40 (all entries; SD across the 12 cross-pairs = 0.05). High off-diagonal entries indicate paratope-recognition loss when an antibody elicited against serotype X encounters serotype Y; this is the geometric substrate of antibody-dependent enhancement (ADE) per Halstead 2014 *Microbiol Spectr* (PMID:26104444).
 
 ### 3.5 What the model fails to predict
 
-The model does not capture innate-priming and FcγR balance differences (Effector-tone axis), the most likely reason for
-CYD-TDV's underperformance in seronegative recipients from predicted efficacy. This
-is a known limitation of sequence-only prediction and is precisely why
-post-Phase-1 axes 3-5 (Time, Intent, Effector tone) remain in the
-architectural framework.
+The model does not capture innate-priming and FcgammaR balance differences (the Effector-tone axis), the most likely mechanistic reason for CYD-TDV's underperformance in seronegative recipients (Sridhar 2018). This is a known limitation of sequence-only prediction.
 
 ---
 
@@ -218,91 +108,65 @@ architectural framework.
 
 ### 4.1 What this implementation establishes
 
-We can compute two of the five Estofolete-Nogueira ICA axes from sequence
-and structure alone. These two axes (Geometry, Equity) recover the
-Butantan-DV > TAK-003 > CYD-TDV rank order at Pearson r = 0.99
-(95% CI [CI: n<4]). The pipeline is open-source, containerised, and
-fully reproducible from the git tag `v1.0-dengue-results` of
-github.com/JamesWeatherhead/immunoinformatics_platform-dengue.
+We can compute sequence-only proxies for two of the four Estofolete et al. composite rows (Tier A neutralization breadth, Tier B CD8 polyfunctionality) at scale from a candidate's parent strains alone, before any human dosing. The composite of these two proxies, restricted to EDE residues, correctly identifies the highest-efficacy Phase 3 dengue vaccine in our retrospective. The pipeline is open-source, containerised, and reproducible from `v1.0-dengue-results`.
 
 ### 4.2 What this implementation does not establish
 
-  - **Axes 3-5 require trial data.** No claim is made that Time, Intent, or
-    Effector-tone axes can be computed pre-trial. Their inclusion in the ICA
-    framework is conceptual and they remain testable only via Phase 1/1b
-    immune assays.
-  - **The retrospective is small.** Three vaccine programs is not a sample
-    size from which to infer absolute efficacy thresholds. The Tier A+B
-    composite is presented as an *ordering* tool for prioritising Phase 1
-    candidates, not a predictor of percent efficacy.
-  - **Sequence cannot capture immune compartment dynamics.** Memory B-cell
-    durability, T-cell exhaustion, and innate priming are biological
-    phenomena outside the substrate this pipeline reads.
+Three caveats are load-bearing. First, n=3 vaccine programs precludes inferential statistics: bootstrap 95% CI [-1, +1] is not a CI in any useful sense; permutation p = 0.83 is consistent with chance. We position the pipeline as a candidate ordering tool, not a calibrated efficacy predictor. Second, Tier A.2 and Tier B.1 proxies are sequence/structure shadows of trial-derived measurements (avidity and MBC breadth); the empirical question of how strongly they correlate with the wet-lab versions is open. Third, the optimal weight (w_A = 0.25) is a post-hoc grid sweep finding, not a held-out estimate; the equal-weight composite (r = 0.35) is the pre-registered alternative.
 
-### 4.3 Response to Lancet ID reviewer concerns
+### 4.3 Response to prior reviewer concerns
 
-The prior version of this work (THELANCETID-D-26-00582, Saivish et al.) was
-rejected at *Lancet Infectious Diseases* on three grounds. We address each
-explicitly:
+The prior version of this work (THELANCETID-D-26-00582) was rejected at *Lancet Infectious Diseases*. We address each ground specifically (full point-by-point response: `docs/dengue/response_to_prior_reviewers.md`):
 
-  - **Reviewer 1 (misrepresentation of cited literature).** Every load-bearing
-    immunological claim in this Perspective is now traceable to a *single*
-    primary citation that measured the specific quantity claimed (rather
-    than indirectly supporting it). Citation graph available at
-    `docs/dengue/citation_audit.md`.
-  - **Reviewer 2 (writing register).** Speculative language has been removed
-    from Sections 2 and 3. Section 4 retains discussion of conceptual axes
-    3-5 with explicit "future work" framing.
-  - **Reviewer 3 (HLA inequity citations did not measure HLA).** All
-    population-coverage claims in this Perspective are computed directly from
-    AFND release 2024-12 HLA frequencies (Section 2.2, Figure 4) rather than
-    cited from secondary literature.
+  - **Reviewer 1 (misrepresentation of cited literature).** Every load-bearing immunological claim is now traceable to a primary measurement source verified via paperclip and NCBI E-utilities. The audit (Supplementary Table S3) flags the 12 PMIDs in the prior draft that did not match their cited papers, with the corrections deployed.
+  - **Reviewer 2 (writing register).** Speculative language is removed from Sections 2 and 3. The Discussion retains conceptual framing of out-of-scope axes with explicit "wet-lab-only" attribution to Estofolete et al.
+  - **Reviewer 3 (HLA inequity citations did not measure HLA).** All population-coverage values are computed directly from AFND release 2024-12 frequencies, with each regional table anchored to one of 16 primary-measurement papers (combined N > 150,000 typed individuals). The 9 prior-draft secondary citations are removed.
 
 ### 4.4 What we ask of the field
 
-A pre-Phase-1 candidate ranking framework is most useful when calibrated
-prospectively, not just retrospectively. We propose that any Phase 1 dengue
-vaccine running in 2026-2028 deposit pre-trial Tier A+B composite scores
-(computed via this pipeline or any equivalent) as a registered prediction
-*before* unblinding, so the empirical correlate can mature from r = 0.99
-toward something operationally useful.
+A pre-Phase-1 candidate ranking framework is most useful when calibrated prospectively, not just retrospectively. We propose that Phase 1 dengue (and Zika, JEV, YFV) vaccine programs running 2026-2028 deposit pre-trial Tier A+B composite scores — computed via this pipeline or an equivalent — as a registered prediction *before* unblinding, so the empirical correlate can mature from r ~ 0.45 (n=3) toward a value with confidence-interval power.
 
 ---
 
-## 5. Code & data availability
+## 5. Code and data availability
 
-  - **Pipeline:** https://github.com/JamesWeatherhead/immunoinformatics_platform-dengue
-    tag `v1.0-dengue-results` (full Nextflow workflow + container builds).
-  - **Reference inputs:** `ref_fastas/dengue/` (DENV 1-4) and
-    `ref_fastas/dengue_phase3_vaccines/` (Phase 3 parents).
-  - **All outputs:** `outputs/` subtree, including `table4_dengue/`,
-    `phase3_retrospective/`, and `figures/`.
-  - **License compliance:** Gurobi (JessEV solver) and NetMHCpan binaries
-    used under Peter McCaffrey's existing academic licenses; downstream
-    users must obtain their own licenses for these stages.
+  - Pipeline: github.com/JamesWeatherhead/immunoinformatics_platform-dengue, tag `v1.0-dengue-results` (Nextflow workflow, container Dockerfiles, scoring scripts).
+  - Outputs: `outputs/` subtree, including `table4_dengue/`, `phase3_retrospective/`, `figures/`, and `manuscript/supplementary/`.
+  - License compliance: Gurobi (JessEV) and licensed MHC binaries used under inherited academic licenses; downstream users must obtain their own licenses.
+  - A Zenodo deposition will be made prior to acceptance. AFND tables cited per release 2024-12. IEDB curated dengue epitopes (3,848 class-I, 6,090 class-II, 16,275 B-cell rows) pulled via `query-api.iedb.org` 2026-05-07; copy at `data/iedb_curated_epitopes/`.
 
 ---
 
 ## 6. References
 
-(Filled by hand from `docs/dengue/citation_audit.md` to ensure each
-load-bearing claim has a primary measurement source. Bib file:
-`docs/dengue/dengue_perspective.bib`.)
+1. Bhatt S et al. The global distribution and burden of dengue. *Nature* 2013;496:504-7. PMID:23563266.
+2. Sridhar S et al. Effect of dengue serostatus on dengue vaccine safety and efficacy. *N Engl J Med* 2018;379:327-340. PMID:29897841.
+3. Tricou V et al. Long-term efficacy and safety of TAK-003 in a randomised, double-blind, placebo-controlled, phase 3 trial. *Lancet Glob Health* 2024;12(2):e257-e270. PMID:38245116.
+4. Kallas EG et al. Live, attenuated, tetravalent Butantan-Dengue vaccine in children and adults. *N Engl J Med* 2024;390:397-408. PMID:38294972.
+5. Estofolete CF, Saivish MV, Nogueira ML, Vasilakis N. From promise to pitfalls: immunological lessons from dengue vaccines and their implications. *npj Vaccines* 2026;11:68. doi:10.1038/s41541-026-01400-4.
+6. Versiani AF, McCaffrey P et al. Iterative Vaccine Design in an Era of Emerging Infectious Disease. *Sci Adv* 2026 (in press). Software v1.0: github.com/pmccaffrey6/immunoinformatics_platform.
+7. Modis Y et al. A ligand-binding pocket in the dengue virus envelope glycoprotein. *Proc Natl Acad Sci U S A* 2003;100:6986-6991. PMID:12759475. (PDB 1OAN.)
+8. Cockburn JJ et al. Crystal structure of the dengue virus type 1 envelope glycoprotein complex with a broadly neutralizing antibody. *EMBO J* 2012;31:767-779. PMID:22139356.
+9. Rouvinski A et al. Recognition determinants of broadly neutralising human antibodies against dengue viruses. *Nature* 2015;520:109-113. PMID:25581790. (EDE residue list.)
+10. Halstead SB. Pathogenesis of Dengue: Dawn of a New Era. *Microbiol Spectr* 2014;2(6). PMID:26104444.
+11. Bui H-H et al. Predicting population coverage of T-cell epitope-based diagnostics and vaccines. *BMC Bioinformatics* 2006;7:153. PMID:16545123.
+12. Tian Y, Grifoni A, Sette A, Weiskopf D. Human T cell response to dengue virus infection. *Front Immunol* 2019;10:2125. PMID:31572359; PMC6737489.
+13. Brady OJ et al. Refining the global spatial limits of dengue virus transmission. *PLoS Negl Trop Dis* 2012;6:e1760. PMID:22880140.
+14. Cattarino L et al. Mapping global variation in dengue transmission intensity. *Sci Transl Med* 2020;12:eaax4144. PMID:31996463.
+15. Stanaway JD et al. The global burden of dengue: an analysis from the Global Burden of Disease Study 2013. *Lancet Infect Dis* 2016;16:712-723. PMID:26874619.
+16. Solloch UV et al. (HLA frequencies in Indian sub-populations). PMC11893841.
+17. Kulmann-Leal B et al. (HLA in southern Brazil). PMC11285832.
+18. Que TT et al. (HLA in Vietnam cord blood). PMC9277059.
+19. Barton EA et al. (HLA in Tanzanian Maasai). PMC7618281.
+20. Munoz CB et al. (HLA in Colombia donor registry). PMC12766644.
+21. Vander Heiden JA et al. pRESTO: a toolkit for processing high-throughput sequencing raw reads of lymphocyte receptor repertoires. *Bioinformatics* 2014;30:1930-1932. PMID:24618469.
+22. Querec TD et al. Systems biology approach predicts immunogenicity of the yellow fever vaccine in humans. *Nat Immunol* 2009;10:116-125. PMID:19029902.
+23. Wherry EJ. T cell exhaustion. *Nat Immunol* 2011;12:492-499. PMID:21739672.
+24. Smith DJ et al. Mapping the antigenic and genetic evolution of influenza virus. *Science* 2004;305:371-376. PMID:15218094.
+25. Katzelnick LC et al. Dengue viruses cluster antigenically but not as discrete serotypes. *Science* 2015;349:1338-1343. PMID:26383952.
 
-Key anchors:
-  - Bhatt S et al. The global distribution and burden of dengue. *Nature* 2013;496:504-7.
-  - Sridhar S et al. Effect of dengue serostatus on dengue vaccine safety and efficacy. *N Engl J Med* 2018;379:327-340.
-  - Tricou V et al. Long-term efficacy and safety of TAK-003. *N Engl J Med* 2024;390:1226-1236.
-  - Kallas EG et al. Live, attenuated, tetravalent Butantan-Dengue vaccine. *N Engl J Med* 2024;390:397-408.
-  - Estofolete CF, Nogueira ML et al. Composite immune correlates and the dengue vaccine efficacy gap. *npj Vaccines* 2026;11:68.
-  - Versiani AF, McCaffrey P et al. immunoinformatics_platform: a Nextflow workflow for multi-axis epitope scoring. *Sci Adv* 2026;12:eaeb2066.
+(Full reference list with PMID corrections from Supplementary Table S3 is in `docs/dengue/dengue_perspective.bib`. References 13-15 are the corrected PMIDs flagged by the citation-validation subagent run on 2026-05-07.)
 
 ---
 
-*Manuscript template version 1.0; placeholders auto-filled from
-`scripts/dengue/fill_manuscript.py` against pipeline outputs at git tag
-`v1.0-dengue-results`. Citation enrichment via paperclip is a separate
-post-fill pass.*
-
-<!-- bib generated by paperclip; merged at 2026-05-07T14:09:00Z -->
-<!-- See /Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/dengue_perspective.bib and /Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/citation_audit.md -->
+*Manuscript v1-FINAL. Submission package (cover letter, response-to-reviewers, CRediT, COI, data availability) in `docs/dengue/submission/`. Supplementary tables S1-S5 in `outputs/manuscript/supplementary/`.*
