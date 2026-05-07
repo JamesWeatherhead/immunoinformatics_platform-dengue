@@ -1,0 +1,86 @@
+pmid	file_path:line	cited_author	cited_year	cited_journal	pubmed_author	pubmed_year	pubmed_journal	status	suggested_correction_pmid	severity
+29897841	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/manuscript_template.md:303			N Engl J Med	Sridhar	2018	N Engl J Med	OK		minor
+38245116	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/manuscript_template.md:304			Lancet Glob Health	Tricou	2024	Lancet Glob Health	OK		minor
+38294972	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/manuscript_template.md:305			N Engl J Med	Kallás	2024	N Engl J Med	OK		minor
+39074297	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:20	Bruna	2024		Kulmann-Leal	2024	Genet Mol Biol	FLAGGED_IN_AUDIT_DOC		informational
+40070842	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:21	Ute	2025		Solloch	2025	Front Immunol	FLAGGED_IN_AUDIT_DOC		informational
+40070842	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:21	Year	2025		Solloch	2025	Front Immunol	FLAGGED_IN_AUDIT_DOC		informational
+41497982	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:22	Luisa	2025		Muñoz	2025	Front Immunol	FLAGGED_IN_AUDIT_DOC		informational
+41497982	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:22	Year	2025		Muñoz	2025	Front Immunol	FLAGGED_IN_AUDIT_DOC		informational
+31552052	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:23	Yuan	2019		Tian	2019	Front Immunol	FLAGGED_IN_AUDIT_DOC		informational
+36335052	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:24	Amber	2022		Barton	2023	Hum Immunol	FLAGGED_IN_AUDIT_DOC		informational
+36335052	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:24				Barton	2023	Hum Immunol	FLAGGED_IN_AUDIT_DOC		informational
+35844516	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:25	Ngoc	2022		Que	2022	Front Immunol	FLAGGED_IN_AUDIT_DOC		informational
+35844516	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:25	Year	2022		Que	2022	Front Immunol	FLAGGED_IN_AUDIT_DOC		informational
+41690991	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:26				Estofolete	2026	NPJ Vaccines	FLAGGED_IN_AUDIT_DOC		informational
+41811958	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/pmid_verification_audit.tsv:27				Versiani	2026	Sci Adv	FLAGGED_IN_AUDIT_DOC		informational
+29897841	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	Sridhar	2018		Sridhar	2018	N Engl J Med	FLAGGED_IN_AUDIT_DOC		informational
+30021080	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	NEJM	2018		Golden	2018	Neural Comput	FLAGGED_IN_AUDIT_DOC	29897841	informational
+38245116	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	Tricou	2024		Tricou	2024	Lancet Glob Health	FLAGGED_IN_AUDIT_DOC		informational
+38598795	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	Tricou	2024		Pradilla	2024	N Engl J Med	FLAGGED_IN_AUDIT_DOC	38245116	informational
+38294972	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	Kallas	2024		Kallás	2024	N Engl J Med	FLAGGED_IN_AUDIT_DOC		informational
+38320283	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	Kallas	2024		NO_ARTICLE			FLAGGED_IN_AUDIT_DOC	38294972	informational
+25581790	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	Rouvinski	2015		Rouvinski	2015	Nature	FLAGGED_IN_AUDIT_DOC		informational
+25569347	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:12	Rouvinski	2015		Evrony	2015	Neuron	FLAGGED_IN_AUDIT_DOC	25581790	informational
+31572359	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:14			Front Immunol	Nesmond	2019	Front Immunol	FLAGGED_IN_AUDIT_DOC	31552052	informational
+31572359	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:14			Front Immunol	Nesmond	2019	Front Immunol	FLAGGED_IN_AUDIT_DOC	31552052	informational
+25501631	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:70	Dejnirattisai	2015		Dejnirattisai	2015	Nat Immunol	FLAGGED_IN_AUDIT_DOC		informational
+22139356	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:70	Cockburn	2012		Cockburn	2012	EMBO J	FLAGGED_IN_AUDIT_DOC		informational
+31572359	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:152				Nesmond	2019	Front Immunol	FLAGGED_IN_AUDIT_DOC	31552052	informational
+30021080	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:157				Golden	2018	Neural Comput	FLAGGED_IN_AUDIT_DOC	29897841	informational
+38598795	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:162				Pradilla	2024	N Engl J Med	FLAGGED_IN_AUDIT_DOC	38245116	informational
+38320283	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:167				NO_ARTICLE			FLAGGED_IN_AUDIT_DOC	38294972	informational
+25569347	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:172				Evrony	2015	Neuron	FLAGGED_IN_AUDIT_DOC	25581790	informational
+21737702	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:176				Ekiert	2011	Science	FLAGGED_IN_AUDIT_DOC	26104444	informational
+26104444	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:177			Microbiol Spectr	Halstead	2014	Microbiol Spectr	FLAGGED_IN_AUDIT_DOC		informational
+28492867	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:183			Issue:	Madaan	2017	JAMA Psychiatry	FLAGGED_IN_AUDIT_DOC		informational
+19402892	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:183			Issue:	Lewis	2009	BMC Genomics	FLAGGED_IN_AUDIT_DOC		informational
+21737702	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/red_team_review.md:315				Ekiert	2011	Science	FLAGGED_IN_AUDIT_DOC		informational
+26104444	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/integration_audit.md:74			 §3.4 line 99 cites "Halstead 2014 	Halstead	2014	Microbiol Spectr	FLAGGED_IN_AUDIT_DOC		informational
+26104444	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/integration_audit.md:74			Microbiol Spectr	Halstead	2014	Microbiol Spectr	FLAGGED_IN_AUDIT_DOC		informational
+25581790	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/integration_audit.md:174			Where:	Rouvinski	2015	Nature	FLAGGED_IN_AUDIT_DOC		informational
+12759475	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:40				Modis	2003	Proc Natl Acad Sci U S A	OK		minor
+25581790	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:54				Rouvinski	2015	Nature	OK		minor
+22139356	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:68				Cockburn	2012	EMBO J	OK		minor
+25501631	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:83				Dejnirattisai	2015	Nat Immunol	OK		minor
+17993365	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:97				Halstead	2007	Lancet	OK		minor
+26104444	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:112				Halstead	2014	Microbiol Spectr	OK		minor
+21746897	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:133				Chan	2011	Proc Natl Acad Sci U S A	OK		minor
+23717696	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:147				Chawla	2013	PLoS One	OK		minor
+41012654	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/paperclip_research/structural_ade_citations.md:161				Kraivong	2025	Viruses	OK		minor
+23563266	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/citation_audit.md:8				Bhatt	2013	Nature	FLAGGED_IN_AUDIT_DOC		informational
+30067296	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/citation_audit.md:9				Gundale	2019	New Phytol	FLAGGED_IN_AUDIT_DOC		informational
+38477990	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/citation_audit.md:10				Drivenes	2024	N Engl J Med	FLAGGED_IN_AUDIT_DOC		informational
+38294966	/Users/jamesweatherhead/Desktop/dengue-fork/docs/dengue/citation_audit.md:11				Birkenes	2024	Knee Surg Sports Traumatol Arthrosc	FLAGGED_IN_AUDIT_DOC		informational
+29897841	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/mechanistic_interpretation.md:63	Sridhar	2018		Sridhar	2018	N Engl J Med	OK		minor
+23563266	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:23	Bhatt	2013		Bhatt	2013	Nature	OK		minor
+29897841	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:23	Sridhar	2018		Sridhar	2018	N Engl J Med	OK		minor
+38245116	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:23	Tricou	2024	Lancet Glob Health	Tricou	2024	Lancet Glob Health	OK		minor
+38294972	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:23	Kallas	2024	N Engl J Med	Kallás	2024	N Engl J Med	OK		minor
+16545123	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:42	Bui	2006		Bui	2006	BMC Bioinformatics	OK		minor
+12759475	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:54	Modis	2003		Modis	2003	Proc Natl Acad Sci U S A	OK		minor
+22139356	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:54	Cockburn	2012	EMBO J	Cockburn	2012	EMBO J	OK		minor
+25581790	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:58	Rouvinski	2015	Nature	Rouvinski	2015	Nature	OK		minor
+26104444	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:99	Halstead	2014	Microbiol Spectr	Halstead	2014	Microbiol Spectr	OK		minor
+23563266	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:142			Nature	Bhatt	2013	Nature	OK		minor
+29897841	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:143			N Engl J Med	Sridhar	2018	N Engl J Med	OK		minor
+38245116	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:144			Lancet Glob Health	Tricou	2024	Lancet Glob Health	OK		minor
+38294972	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:145			N Engl J Med	Kallás	2024	N Engl J Med	OK		minor
+12759475	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:148			Proc Natl Acad Sci U S A	Modis	2003	Proc Natl Acad Sci U S A	OK		minor
+22139356	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:149			EMBO J	Cockburn	2012	EMBO J	OK		minor
+25581790	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:150			Nature	Rouvinski	2015	Nature	OK		minor
+26104444	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:151			Microbiol Spectr	Halstead	2014	Microbiol Spectr	OK		minor
+16545123	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:152			BMC Bioinformatics	Bui	2006	BMC Bioinformatics	OK		minor
+31552052	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:153			Front Immunol	Tian	2019	Front Immunol	OK		minor
+22880140	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:154			PLoS Negl Trop Dis	Brady	2012	PLoS Negl Trop Dis	OK		minor
+31996463	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:155			Sci Transl Med	Cattarino	2020	Sci Transl Med	OK		minor
+26874619	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:156			Lancet Infect Dis	Stanaway	2016	Lancet Infect Dis	OK		minor
+24618469	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:162			Bioinformatics	Vander Heiden	2014	Bioinformatics	OK		minor
+19029902	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:163			Nat Immunol	Querec	2009	Nat Immunol	OK		minor
+21739672	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:164			Nat Immunol	Wherry	2011	Nat Immunol	OK		minor
+15218094	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:165			Science	Smith	2004	Science	OK		minor
+26383952	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:166			Science	Katzelnick	2015	Science	OK		minor
+16545123	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/supplementary/population_coverage_v2.md:10	Bui	2006	BMC Bioinformatics	Bui	2006	BMC Bioinformatics	OK		minor
+PMC9277059	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:159	Que TT			Que TN			MISMATCH_INITIALS	35844516	major
+PMC7618281	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:160	Barton EA			Barton A			MISMATCH_INITIALS	36335052	major
+PMC12766644	/Users/jamesweatherhead/Desktop/dengue-fork/outputs/manuscript/dengue_npj_vaccines_FINAL.md:161	Muñoz CB			Muñoz AL			MISMATCH_INITIALS	41497982	major
