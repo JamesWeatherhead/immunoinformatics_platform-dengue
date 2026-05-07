@@ -63,22 +63,31 @@ while true; do
     fi
 
     # ----- Known failure pattern: missing SIF -----
-    if grep -E "FATAL.*could not open image" /data/james/ica-dengue/logs/*.log 2>/dev/null | tail -5; then
-        missing_sif=$(grep -oE "/data/james/ica-dengue/sif_images/[^[:space:]]+\.sif" /data/james/ica-dengue/logs/*.log 2>/dev/null | sort -u | head -3)
-        if [[ -n "$missing_sif" ]]; then
-            log "  detected missing SIFs: $missing_sif"
-            for sif in $missing_sif; do
-                bn=$(basename "$sif")
-                if [[ "$bn" == "blast_latest.sif" ]] || [[ "$bn" == "clustalomega_latest.sif" ]]; then
-                    log "    $bn: workflow gating fixed in 0a1f93e; not building"
-                elif [[ "$bn" == "alphafold.sif" ]] && [[ ! -f "$sif" ]]; then
-                    log "    $bn: critical, attempting docker-daemon rebuild"
-                    if ! tmux has-session -t af_sif_rebuild 2>/dev/null; then
-                        tmux new -s af_sif_rebuild -d "apptainer build $sif docker-daemon://alphafold:2.3.2 2>&1 | tee /data/james/ica-dengue/logs/alphafold_sif_rebuild.log; sleep 7200"
-                    fi
+    # Detect lines like: "FATAL:   could not open image /path/to/foo.sif: ..."
+    # grep --no-filename avoids the bug where multiple files prefix matches with "<path>:"
+    missing_sif=$(grep --no-filename -hoE "could not open image /data/james/ica-dengue/sif_images/[^[:space:]:]+\.sif" \
+                  /data/james/ica-dengue/logs/master_pipeline.log \
+                  /data/james/ica-dengue/logs/auto_dispatch.log \
+                  /data/james/ica-dengue/logs/alphafold_dispatch.log 2>/dev/null \
+                  | sed -E 's/^could not open image //' | sort -u | head -3)
+    if [[ -n "$missing_sif" ]]; then
+        log "  detected missing SIFs: $missing_sif"
+        for sif in $missing_sif; do
+            # Strict: only treat exact /data/james/ica-dengue/sif_images/X.sif paths
+            if [[ ! "$sif" =~ ^/data/james/ica-dengue/sif_images/[A-Za-z0-9._-]+\.sif$ ]]; then
+                log "    skipping malformed match: $sif"
+                continue
+            fi
+            bn=$(basename "$sif")
+            if [[ "$bn" == "blast_latest.sif" ]] || [[ "$bn" == "clustalomega_latest.sif" ]]; then
+                log "    $bn: workflow gating fixed in 0a1f93e; not building"
+            elif [[ "$bn" == "alphafold.sif" ]] && [[ ! -f "$sif" ]]; then
+                log "    $bn: critical, attempting docker-daemon rebuild"
+                if ! tmux has-session -t af_sif_rebuild 2>/dev/null; then
+                    tmux new -s af_sif_rebuild -d "apptainer build $sif docker-daemon://alphafold:2.3.2 2>&1 | tee /data/james/ica-dengue/logs/alphafold_sif_rebuild.log; sleep 7200"
                 fi
-            done
-        fi
+            fi
+        done
     fi
 
     # ----- Known failure pattern: nextflow workdir permission -----
