@@ -26,7 +26,15 @@ while true; do
     log "iteration $iter"
     cd "$REPO"
 
-    # Stage anything new under outputs/ or docs/dengue/ or logs/
+    # Pull any local changes pushed from James's Mac (script updates etc.)
+    # --autostash safely shelves any in-progress local edits
+    if git pull --rebase --autostash origin master 2>>"$LOG"; then
+        log "  pull --rebase --autostash OK"
+    else
+        log "  PULL FAILED; continuing with local state"
+    fi
+
+    # Stage anything new under outputs/ or docs/dengue/ or scripts/dengue/
     git add outputs/ docs/dengue/ scripts/dengue/ 2>>"$LOG" || true
 
     # Check if there's anything to commit

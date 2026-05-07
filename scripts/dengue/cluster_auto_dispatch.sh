@@ -118,4 +118,20 @@ else
     find "$bcell_outdir" -type f >> "$LOG" 2>&1
 fi
 
-log "auto_dispatch script done"
+# Phase 4: chain into master_pipeline for everything downstream
+# (AlphaFold, DiscoTope, T-cell, JessEV, Table 4 mapping, Phase 3 retro,
+#  figures, manuscript, commit, tag). master_pipeline.sh is idempotent and
+#  resumes from wherever it last stopped.
+log "phase 4: launching master_pipeline.sh in tmux session 'master_pipeline'"
+if [[ -x "$REPO/scripts/dengue/cluster_master_pipeline.sh" ]]; then
+    if tmux has-session -t master_pipeline 2>/dev/null; then
+        log "  master_pipeline tmux session already exists; not relaunching"
+    else
+        tmux new -s master_pipeline -d "bash $REPO/scripts/dengue/cluster_master_pipeline.sh; sleep 604800"
+        log "  launched master_pipeline tmux"
+    fi
+else
+    log "  cluster_master_pipeline.sh missing or not executable; downstream phases will not run"
+fi
+
+log "auto_dispatch script done; master_pipeline now driving multi-day chain"

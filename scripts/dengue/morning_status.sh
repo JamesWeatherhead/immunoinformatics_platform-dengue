@@ -48,23 +48,69 @@ cyan "[5] Auto-dispatch log (last 30 lines):"
 [[ -f "$LOGS/auto_dispatch.log" ]] && tail -30 "$LOGS/auto_dispatch.log" || yellow "  no auto_dispatch.log yet"
 echo
 
-cyan "[6] Periodic-commit log (last 10 lines):"
+cyan "[6] Master-pipeline log (last 30 lines):"
+[[ -f "$LOGS/master_pipeline.log" ]] && tail -30 "$LOGS/master_pipeline.log" || yellow "  no master_pipeline.log yet"
+echo
+
+cyan "[7] AlphaFold dispatch log (last 15 lines):"
+[[ -f "$LOGS/alphafold_dispatch.log" ]] && tail -15 "$LOGS/alphafold_dispatch.log" || yellow "  no alphafold_dispatch.log yet"
+echo
+
+cyan "[8] NetMHCpan build log (last 15 lines):"
+[[ -f "$LOGS/netmhcpan_build.log" ]] && tail -15 "$LOGS/netmhcpan_build.log" || yellow "  no netmhcpan_build.log yet"
+echo
+
+cyan "[9] Periodic-commit log (last 10 lines):"
 [[ -f "$LOGS/periodic_commit.log" ]] && tail -10 "$LOGS/periodic_commit.log" || yellow "  no periodic_commit.log yet"
 echo
 
-cyan "[7] Disk usage:"
+cyan "[10] Disk usage:"
 df -h /data | tail -1
 echo
 
-cyan "[8] What to do based on state:"
-if grep -q "phase 3: nextflow complete" "$LOGS/auto_dispatch.log" 2>/dev/null; then
-    green "  -> B-cell pipeline finished. Tell Claude: 'morning - bcell done, dispatch full pipeline'"
+cyan "[11] Manuscript draft status:"
+if [[ -f /data/james/ica-dengue/outputs/manuscript/dengue_npj_vaccines_draft.md ]]; then
+    green "  -> draft EXISTS at outputs/manuscript/dengue_npj_vaccines_draft.md"
+    n_tbd=$(grep -c "TBD" /data/james/ica-dengue/outputs/manuscript/dengue_npj_vaccines_draft.md 2>/dev/null || echo 0)
+    if (( n_tbd > 0 )); then
+        yellow "  -> $n_tbd TBD placeholders remain (need either pipeline rerun or manual fill)"
+    else
+        green "  -> all placeholders filled, ready for paperclip enrichment + author review"
+    fi
+else
+    yellow "  -> draft not yet generated"
+fi
+echo
+
+cyan "[12] Figures:"
+fig_dir=/data/james/ica-dengue/outputs/figures
+if [[ -d "$fig_dir" ]]; then
+    n_png=$(ls "$fig_dir"/*.png 2>/dev/null | wc -l)
+    green "  -> $n_png figures rendered in $fig_dir"
+    ls "$fig_dir"/*.png 2>/dev/null | xargs -I {} basename {} | sed 's/^/    /'
+else
+    yellow "  -> no figures yet"
+fi
+echo
+
+cyan "[13] What to do based on state:"
+if [[ -f "$REPO/.git/refs/tags/v1.0-dengue-results" ]] || (cd "$REPO" && git tag -l 2>/dev/null | grep -q "v1.0-dengue-results"); then
+    green "  -> v1.0-dengue-results TAGGED. Pipeline + figures + manuscript draft all done."
+    green "  -> Pull from origin to your local: git pull && git checkout v1.0-dengue-results"
+    green "  -> Then run paperclip locally to enrich citations:"
+    green "       cd ~/Desktop/dengue-fork && bash scripts/dengue/run_paperclip_enrichment.sh"
+elif grep -q "master_pipeline COMPLETE" "$LOGS/master_pipeline.log" 2>/dev/null; then
+    green "  -> Master pipeline complete; tag should appear in 'git tag -l'"
+elif grep -q "phase 4: launching master_pipeline" "$LOGS/auto_dispatch.log" 2>/dev/null; then
+    yellow "  -> Master pipeline running. Check master_pipeline.log for current phase."
+elif grep -q "phase 3: nextflow complete" "$LOGS/auto_dispatch.log" 2>/dev/null; then
+    yellow "  -> B-cell complete; master_pipeline should be starting any minute."
 elif grep -q "phase 3: dispatching" "$LOGS/auto_dispatch.log" 2>/dev/null; then
-    yellow "  -> B-cell pipeline still running. Check back in a few hours."
+    yellow "  -> B-cell still running. Master pipeline will auto-launch when done."
 elif grep -q "phase 2 FAILED" "$LOGS/auto_dispatch.log" 2>/dev/null; then
-    red "  -> SIF build failure overnight. Tell Claude: 'morning - SIF failure, debug'"
+    red "  -> SIF build failure. Tell Claude: 'morning - SIF failure, debug'"
 elif tmux has-session -t sif_builds 2>/dev/null; then
-    yellow "  -> SIF builds still running. Check sif_builds tmux."
+    yellow "  -> SIF builds still running."
 else
     yellow "  -> Indeterminate state. Tell Claude: 'morning - unclear, investigate'"
 fi
