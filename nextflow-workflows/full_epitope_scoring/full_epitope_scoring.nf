@@ -566,22 +566,33 @@ process CONSOLIDATEEPITOPES {
     discotope_df["type"] = "discotope"
     print(f"Discotope Table Size: {discotope_df.shape}")
 
-    # Consolidate from NetMHCIPan
+    # Consolidate from NetMHCIPan (PATCH dengue fork: IEDB-wrapped NetMHCpan
+    # outputs TSV not XLS; columns: allele, seq_num, start, end, length,
+    # peptide, ic50, percentile_rank).
     TOPRANK = $params.netmhcpan_tcr_toprank_threshold
     toprank = str(TOPRANK).replace(".","_")
-    print("Consolidating NetMHCPAN I")
-    netmhcpan_i_files = glob.glob("${params.epitope_output_folder}/netmhcpan_i_output/*.xls")
+    print("Consolidating NetMHCPAN I (IEDB-format TSV)")
+    netmhcpan_i_files = glob.glob("${params.epitope_output_folder}/netmhcpan_i_output/*.tsv")
+    netmhcpan_i_files = [f for f in netmhcpan_i_files if 'top_' not in f and 'peptides_protein_ids' not in f]
     netmhcpan_i_dfs = []
     for file in netmhcpan_i_files:
-        df = pd.read_csv(file, sep='\t', skiprows=1)
-        df_for_col = pd.read_csv(file)
-        df["allele"] = df_for_col.columns[-1].strip('\t')
+        df = pd.read_csv(file, sep='\t')
+        if df.empty:
+            continue
         netmhcpan_i_dfs.append(df)
-    netmhcpan_i_df = pd.concat(netmhcpan_i_dfs)
-    netmhcpan_i_df.rename(columns={"ID":"protein_id"}, inplace=True) 
-    netmhcpan_i_df = netmhcpan_i_df[["Peptide","protein_id","allele","EL-score","EL_Rank","BA-score","BA_Rank","Ave","NB"]].drop_duplicates()
-    ##[["peptide","proteinid"]]
-    netmhcpan_i_df.rename(columns={"Peptide":"sequence","EL-score":"netmhcpan_i_el_score","EL_Rank":"netmhcpan_i_el_rank","BA-score":"netmhcpan_i_ba_score","BA_Rank":"netmhcpan_i_ba_rank","Ave":"netmhcpan_i_ave","NB":"netmhcpan_i_nb"}, inplace=True)
+    if not netmhcpan_i_dfs:
+        netmhcpan_i_df = pd.DataFrame(columns=['allele','seq_num','peptide','ic50','percentile_rank'])
+    else:
+        netmhcpan_i_df = pd.concat(netmhcpan_i_dfs)
+    netmhcpan_i_df.rename(columns={"seq_num":"protein_id","peptide":"sequence","ic50":"netmhcpan_i_ic50","percentile_rank":"netmhcpan_i_ba_rank"}, inplace=True)
+    # Synthesize columns the rest of the workflow expects
+    if "netmhcpan_i_el_score" not in netmhcpan_i_df.columns:
+        netmhcpan_i_df["netmhcpan_i_el_score"] = float('nan')
+        netmhcpan_i_df["netmhcpan_i_el_rank"] = float('nan')
+        netmhcpan_i_df["netmhcpan_i_ba_score"] = 1.0 / (netmhcpan_i_df.get("netmhcpan_i_ic50", 1.0) + 1.0)
+        netmhcpan_i_df["netmhcpan_i_ave"] = netmhcpan_i_df["netmhcpan_i_ba_rank"]
+        netmhcpan_i_df["netmhcpan_i_nb"] = (netmhcpan_i_df["netmhcpan_i_ba_rank"] <= 2.0).astype(int)
+    netmhcpan_i_df = netmhcpan_i_df.drop_duplicates(subset=['sequence','protein_id','allele'])
     netmhcpan_i_df[["sequence", "protein_id"]].drop_duplicates().to_csv("${params.epitope_output_folder}/join_tables/netmhcpan_i_peptides_protein_ids.tsv", sep='\t')
     netmhcpan_i_df["type"] = "netmhcpan_i"
     netmhcpan_i_df.reset_index().to_feather("${params.epitope_output_folder}/netmhcpan_i_output/all_netmhcpan_i.feather")
@@ -593,22 +604,29 @@ process CONSOLIDATEEPITOPES {
         SeqIO.write(netmhcpan_i_toprank_records, netmhcpan_i_toprank_output_file, "fasta")
 
 
-    # Consolidate from NetMHCIIPan
+    # Consolidate from NetMHCIIPan (PATCH dengue fork: IEDB TSV format)
     TOPRANK = $params.netmhcpan_tcr_toprank_threshold
     toprank = str(TOPRANK).replace(".","_")
-    print("Consolidating NetMHCPAN II")
-    netmhcpan_ii_files = glob.glob("${params.epitope_output_folder}/netmhcpan_ii_output/*.xls")
+    print("Consolidating NetMHCPAN II (IEDB-format TSV)")
+    netmhcpan_ii_files = glob.glob("${params.epitope_output_folder}/netmhcpan_ii_output/*.tsv")
+    netmhcpan_ii_files = [f for f in netmhcpan_ii_files if 'top_' not in f and 'peptides_protein_ids' not in f]
     netmhcpan_ii_dfs = []
     for file in netmhcpan_ii_files:
-        df = pd.read_csv(file, sep='\t', skiprows=1)
-        df_for_col = pd.read_csv(file)
-        df["allele"] = df_for_col.columns[-1].strip('\t')
+        df = pd.read_csv(file, sep='\t')
+        if df.empty:
+            continue
         netmhcpan_ii_dfs.append(df)
-    netmhcpan_ii_df = pd.concat(netmhcpan_ii_dfs)
-    netmhcpan_ii_df.rename(columns={"ID":"protein_id"}, inplace=True)
-    netmhcpan_ii_df = netmhcpan_ii_df[["Peptide","protein_id","allele","Score","Rank","Score_BA","Rank_BA","Ave","NB"]].drop_duplicates()
-    ##[["peptide","protein_id"]]
-    netmhcpan_ii_df.rename(columns={"Peptide":"sequence","Score":"netmhcpan_ii_el_score","Rank":"netmhcpan_ii_el_rank","Score_BA":"netmhcpan_ii_ba_score","Rank_BA":"netmhcpan_ii_ba_rank","Ave":"netmhcpan_ii_ave","NB":"netmhcpan_ii_nb"}, inplace=True)
+    if not netmhcpan_ii_dfs:
+        netmhcpan_ii_df = pd.DataFrame(columns=['allele','seq_num','peptide','ic50','percentile_rank'])
+    else:
+        netmhcpan_ii_df = pd.concat(netmhcpan_ii_dfs)
+    netmhcpan_ii_df.rename(columns={"seq_num":"protein_id","peptide":"sequence","ic50":"netmhcpan_ii_ic50","percentile_rank":"netmhcpan_ii_ba_rank"}, inplace=True)
+    netmhcpan_ii_df["netmhcpan_ii_el_score"] = float('nan')
+    netmhcpan_ii_df["netmhcpan_ii_el_rank"] = float('nan')
+    netmhcpan_ii_df["netmhcpan_ii_ba_score"] = 1.0 / (netmhcpan_ii_df.get("netmhcpan_ii_ic50", 1.0) + 1.0)
+    netmhcpan_ii_df["netmhcpan_ii_ave"] = netmhcpan_ii_df["netmhcpan_ii_ba_rank"]
+    netmhcpan_ii_df["netmhcpan_ii_nb"] = (netmhcpan_ii_df["netmhcpan_ii_ba_rank"] <= 5.0).astype(int)
+    netmhcpan_ii_df = netmhcpan_ii_df.drop_duplicates(subset=['sequence','protein_id','allele'])
     netmhcpan_ii_df[["sequence", "protein_id"]].drop_duplicates().to_csv("${params.epitope_output_folder}/join_tables/netmhcpan_ii_peptides_protein_ids.tsv", sep='\t')
     netmhcpan_ii_df["type"] = "netmhcpan_ii"
     netmhcpan_ii_df.reset_index().to_feather("${params.epitope_output_folder}/netmhcpan_ii_output/all_netmhcpan_ii.feather")
@@ -1221,11 +1239,17 @@ workflow {
     }
 
     /* T-CELL SCORING */
+    // PATCH (dengue fork): Route to IEDB-wrapped NetMHCpan (NETMHCPANIIEDB /
+    // NETMHCPANIIIEDB) instead of the direct DTU NetMHCpan binaries. The DTU
+    // binary tarballs are academic-license per-user and are not on the cluster.
+    // The IEDB MHC tools redistribute NetMHCpan with their own license; same
+    // underlying predictor, slightly different output format (TSV not XLS).
+    // CONSOLIDATEEPITOPES is patched below to consume the TSV format.
     if (params.netmhcpani == "yes") {
-        NETMHCPANI(protein_fasta_clean_ch, mhc_i_alleles_ch)
+        NETMHCPANIIEDB(protein_fasta_clean_ch, mhc_i_alleles_ch)
     }
     if (params.netmhcpanii == "yes") {
-        NETMHCPANII(protein_fasta_splits_value_ch, mhc_ii_alleles_ch)  
+        NETMHCPANIIIEDB(protein_fasta_splits_value_ch.flatten(), mhc_ii_alleles_ch)
     }
     
     if (params.consolidate_epitopes == "yes") {

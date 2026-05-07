@@ -176,7 +176,7 @@ TCELL_DONE="$TCELL_OUTDIR/.master_pipeline_tcell_complete"
 mkdir -p "$TCELL_OUTDIR"
 if [[ -f "$TCELL_DONE" ]]; then
     log "  T-cell already complete; skipping"
-elif [[ -f "$SIF_PATH/netmhcpan_i.sif" ]] && [[ -f "$SIF_PATH/netmhcpan_ii.sif" ]]; then
+elif [[ -f "$SIF_PATH/iedb_mhc_i.sif" ]] && [[ -f "$SIF_PATH/iedb_mhc_ii.sif" ]]; then
     log "  dispatching T-cell pipeline"
     rm -rf "$REPO/work_tcell"
     export SINGULARITY_SIF_PATH="$SIF_PATH"
@@ -199,7 +199,40 @@ elif [[ -f "$SIF_PATH/netmhcpan_i.sif" ]] && [[ -f "$SIF_PATH/netmhcpan_ii.sif" 
         log "  T-cell pipeline FAILED; check log"
     fi
 else
-    log "  NetMHCpan SIFs missing; SKIPPING T-cell phase"
+    log "  IEDB MHC SIFs missing; will retry every 5 min for up to 30 min"
+    waited=0
+    while (( waited < 1800 )); do
+        sleep 300
+        waited=$((waited + 300))
+        if [[ -f "$SIF_PATH/iedb_mhc_i.sif" ]] && [[ -f "$SIF_PATH/iedb_mhc_ii.sif" ]]; then
+            log "  IEDB SIFs now present; running T-cell pipeline"
+            rm -rf "$REPO/work_tcell"
+            export SINGULARITY_SIF_PATH="$SIF_PATH"
+            cd "$REPO"
+            ~/nextflow run nextflow-workflows/full_epitope_scoring/full_epitope_scoring.nf \
+                -profile hyperplane_singularity \
+                -c host/nextflow_config/nextflow.config \
+                --protein_file ref_fastas/dengue/dengue_polyproteins_multiseq.fasta \
+                --epitope_output_folder "$TCELL_OUTDIR" \
+                --cdhit_input_proteins yes \
+                --bepipred no --epidope no --dc_bcell no \
+                --netmhcpani yes --netmhcpanii yes \
+                --consolidate_epitopes no --tcrpmhc no --jessev no \
+                -work-dir "$REPO/work_tcell" \
+                >> "$LOG" 2>&1
+            if [[ $? -eq 0 ]]; then
+                touch "$TCELL_DONE"
+                log "  T-cell pipeline complete (after waiting ${waited}s)"
+            else
+                log "  T-cell pipeline FAILED after wait; check log"
+            fi
+            break
+        fi
+        log "  ($((waited/60)) min) still waiting for IEDB SIFs"
+    done
+    if [[ ! -f "$TCELL_DONE" ]]; then
+        log "  IEDB SIFs never appeared in 30 min; SKIPPING T-cell"
+    fi
 fi
 
 # ----------------------------------------------------------------------------
