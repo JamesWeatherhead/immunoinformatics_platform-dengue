@@ -53,7 +53,7 @@ Phase 3 vaccine constructs: 12 GenBank protein records, four serotypes per progr
 
 Reference structures: PDB 4O6B (DENV-1; Cockburn 2012), 1OAN (DENV-2; Modis 2003 PMID:12759475), 1UZG (DENV-3; Modis 2005), 4UTC (DENV-4; Cockburn 2012 *EMBO J* PMID:22139356) for the DiscoTope ensemble. An expanded manifest with five additional PDBs per serotype is in `outputs/manuscript/supplementary/expanded_pdb_manifest.md`.
 
-HLA frequencies: AFND release 2024-12 covering Brazilian regional sub-populations (N + NE + C + S + SE) and four high-burden global regions (Southeast Asia, South Asia, Sub-Saharan Africa, Latin America/Caribbean). Each region's frequency table is anchored to a primary measurement paper of N≥200 typed individuals: Brazil (Kulmann-Leal 2024 PMC11285832), Vietnam (Que 2022 PMC9277059), India (Solloch 2025 PMC11893841 covering 130,518 donors), Tanzania (Barton 2022 PMC7618281), Colombia (Munoz 2025 PMC12766644). Full list of 16 primary papers in `docs/dengue/paperclip_research/hla_primary_measurements.md`.
+HLA frequencies: AFND release 2024-12 covering Brazilian regional sub-populations (N + NE + C + S + SE) and four high-burden global regions (Southeast Asia, South Asia, Sub-Saharan Africa, Latin America/Caribbean). Each region's frequency table is anchored to a primary measurement paper of N≥200 typed individuals: Brazil (Kulmann-Leal 2024 PMC11285832), Vietnam (Que 2022 PMC9277059), India (Solloch 2025 PMC11893841 covering 130,518 donors), Tanzania (Barton 2022 PMC7618281), Colombia (Muñoz 2025 PMC12766644). Full list of 16 primary papers in `docs/dengue/paperclip_research/hla_primary_measurements.md`.
 
 EDE residue list (Rouvinski 2015 *Nature* PMID:25581790): on E protein in 1-indexed coordinates, EDE-class A b-strand B/C connector at residues 67-76, fusion-loop adjacent at 79-91, c-d loop at 99-124, lateral ridge at 152-153, and E-dimer interface at 246-251. Mapped to polyprotein coordinates by E-protein offset of 280.
 
@@ -66,7 +66,7 @@ For each input proteome we compute four sub-scores; each is normalised within th
   - **Tier B.1 — MBC breadth proxy.** Cross-serotype EDE residue conservation: Hamming distance at the 33 critical EDE positions divided by 33. Lower distance ⇒ higher proxy. (This is the substrate the pipeline reads; it does not measure post-trial memory B-cell repertoires, which require BCR-seq from Phase 1 PBMC.) Output: `tier_b_mbc_breadth`.
   - **Tier B.2 — CD8 polyfunctionality proxy.** IEDB-wrapped NetMHCpan-4.1 binding predictions for 12 class-I alleles spanning the IEDB-Population-Coverage panel (HLA-A\*01:01 / A\*02:01 / A\*03:01 / A\*24:02 / A\*26:01 / B\*07:02 / B\*08:01 / B\*15:01 / B\*27:05 / B\*39:01 / B\*40:01 / B\*58:01); count peptides at percentile_rank ≤ 2.0 within the EDE window; weight by AFND population frequency. Output: `tier_b_cd8_polyfunc`.
 
-Composite score = w_A · mean(tier_a_neut_breadth, tier_a_avidity) + w_B · mean(tier_b_mbc_breadth, tier_b_cd8_polyfunc). The pre-registered weight choice is w_A = w_B = 0.5 (equal). A post-hoc grid sweep (w_A in {0, 0.25, 0.5, 0.75, 1.0}) is reported as Supplementary Table S4; we acknowledge the optimal sweep weight (w_A = 0.75, Tier-A-heavy) was selected on the n=3 test set and is not a held-out estimate.
+Composite score = w_A · mean(tier_a_neut_breadth, tier_a_avidity) + w_B · mean(tier_b_mbc_breadth, tier_b_cd8_polyfunc). The pre-registered weight choice is w_A = w_B = 0.5 (equal). A post-hoc grid sweep (w_A in {0, 0.25, 0.5, 0.75, 1.0}) is reported as Supplementary Table S4; we acknowledge the optimal sweep weight (w_A = 0.25, Tier-B-heavy in the formal sense, although the actual signal is carried by Tier A) was selected on the n=3 test set and is not a held-out estimate.
 
 ### 2.4 Phase 3 retrospective
 
@@ -156,9 +156,9 @@ A pre-Phase-1 candidate ranking framework is most useful when calibrated prospec
 15. Stanaway JD et al. The global burden of dengue: an analysis from the Global Burden of Disease Study 2013. *Lancet Infect Dis* 2016;16:712-723. PMID:26874619.
 16. Solloch UV et al. (HLA frequencies in Indian sub-populations). PMC11893841.
 17. Kulmann-Leal B et al. (HLA in southern Brazil). PMC11285832.
-18. Que TT et al. (HLA in Vietnam cord blood). PMC9277059.
-19. Barton EA et al. (HLA in Tanzanian Maasai). PMC7618281.
-20. Munoz CB et al. (HLA in Colombia donor registry). PMC12766644.
+18. Que TN et al. (HLA in Vietnam cord blood). PMID:35844516; PMC9277059.
+19. Barton A et al. (HLA in Tanzanian Maasai). PMID:36335052; PMC7618281.
+20. Muñoz AL et al. (HLA in Colombia donor registry). PMID:41497982; PMC12766644.
 21. Vander Heiden JA et al. pRESTO: a toolkit for processing high-throughput sequencing raw reads of lymphocyte receptor repertoires. *Bioinformatics* 2014;30:1930-1932. PMID:24618469.
 22. Querec TD et al. Systems biology approach predicts immunogenicity of the yellow fever vaccine in humans. *Nat Immunol* 2009;10:116-125. PMID:19029902.
 23. Wherry EJ. T cell exhaustion. *Nat Immunol* 2011;12:492-499. PMID:21739672.
