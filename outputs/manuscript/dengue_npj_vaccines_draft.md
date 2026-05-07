@@ -1,4 +1,4 @@
-# Implementing the Immunological Composite Architecture for dengue: an empirical, code-grounded test of the Estofolete et al. composite correlate
+# A sequence- and structure-only computational pipeline that approximates the post-trial composite correlate proposed by Estofolete et al. for dengue vaccines
 
 **Authors:**
 James Weatherhead*, Maurício L. Nogueira, Cassia F. Estofolete, Daniela Weiskopf, Peter McCaffrey, Nikos Vasilakis*
@@ -12,31 +12,33 @@ La Jolla Institute for Immunology (LJI), CA, USA.
 **Type:** Perspective with reproducible computational artifact
 **Code:** https://github.com/JamesWeatherhead/immunoinformatics_platform-dengue (tag `v1.0-dengue-results`)
 **Pipeline pedigree:** fork of `pmccaffrey6/immunoinformatics_platform` (Versiani et al. 2026 *Sci Adv* 12:eaeb2066)
-**Pipeline-numbers timestamp (auto):** 2026-05-07T14:38:18Z
+**Pipeline-numbers timestamp (auto):** 2026-05-07T14:41:32Z
 
 ---
 
 ## Abstract (≤200 words)
 
-Why have three Phase 3 dengue vaccine programs (CYD-TDV, TAK-003, Butantan-DV)
-delivered point efficacies separated by more than 23 percentage points despite
-sharing the same antigen platform conceptually? A 2026 *npj Vaccines* analysis
-by Estofolete et al. proposed a 4-row composite immune correlate (Tier A:
-neutralization breadth + avidity; Tier B: memory B-cell breadth + CD8
-polyfunctionality) that recovered the rank ordering of these three programs.
-That paper articulated an *Immunological Composite Architecture* (ICA) but
-left the upstream prediction problem open: can the composite be computed
-*before* a Phase 3 readout, from sequence and structure alone?
+Three Phase 3 dengue vaccine programs (CYD-TDV, TAK-003, Butantan-DV) have
+delivered point efficacies separated by more than 23 percentage points
+despite each presenting tetravalent envelope antigen. Estofolete et al.
+(*npj Vaccines* 2026; 11:68; doi:10.1038/s41541-026-01400-4) proposed a
+4-row minimal composite immune correlate (Tier A: neutralization breadth
+proxied by EDE-competition; avidity proxied by chaotrope ELISA; Tier B:
+memory B-cell breadth; CD8 polyfunctionality) for distinguishing dengue
+vaccines by mechanism. They explicitly framed all four rows as
+post-Phase-1 wet-lab measurements with defined sampling windows.
 
-Here we implement the two pre-trial axes of that architecture (Geometry,
-Equity) as a Nextflow DSL2 workflow and apply it retrospectively to the
-12 parent strains underlying CYD-TDV, TAK-003, and Butantan-DV. Across
-3 constructs the composite Tier A+B pre-trial score
-correlated with published Phase 3 efficacy at Pearson r = 0.35. We
-describe what the pipeline does and does not predict, and why three of the
-five originally proposed ICA axes (Time, Intent, Effector tone) require
-post-Phase-1 trial data and remain explicitly out of scope for sequence-only
-prediction.
+Here we ask whether *sequence- and structure-only proxies* of the four
+Estofolete rows can be computed pre-Phase-1 to rank-order vaccine
+candidates. We forked Versiani/McCaffrey's published immunoinformatics
+pipeline and applied it to the 3 parent strains of
+the three Phase 3 vaccines. Restricting the B-cell and T-cell scoring
+to the EDE epitope window (Rouvinski 2015 residues), the pipeline-derived
+composite correlated with published efficacy at Pearson r = 0.35
+(n=3) and correctly ranked Butantan-DV first. We
+discuss the magnitude of the gap between sequence-derivable proxies and
+trial-derived measurements, and propose the pipeline as a candidate
+prioritisation tool, not a substitute for clinical evaluation.
 
 ---
 
@@ -59,25 +61,32 @@ that integrates four immune signatures (Table 4 of that work):
   - **Tier B.** Memory B-cell (MBC) repertoire breadth;
   - **Tier B.** CD8 T-cell polyfunctionality.
 
-When applied retrospectively, this composite recovered the
-Butantan-DV > TAK-003 > CYD-TDV rank ordering more reliably than any
-single axis. Estofolete et al. termed the broader framework the
-*Immunological Composite Architecture (ICA)* and proposed five axes
-governing dengue vaccine outcome: **Geometry** (epitope structural fit to
-neutralizing antibody paratopes); **Equity** (population HLA coverage and
-ethnic representation in efficacy estimates); **Time** (memory-compartment
-durability); **Intent** (T-cell polyfunctionality vs exhaustion); and
-**Effector tone** (innate-priming context, including dendritic-cell
-maturation and FcγR balance).
+Estofolete et al. (*npj Vaccines* 2026; 11:68) propose this composite as
+a *prospective* trial-design tool: each of the four rows is to be measured
+on Phase 1/1b vaccinees during defined sampling windows (Tier A
+neutralisation at day 28-60 + 6/12/24 mo; avidity at day 60 + 6-12 mo;
+Tier B memory B-cell at 6-12 mo; CD8 polyfunctionality at day 28-90).
+The paper does not perform a retrospective on already-licensed Phase 3
+vaccines; the Butantan-DV > TAK-003 > CYD-TDV rank ordering is the
+published clinical record (Sridhar 2018, Tricou 2024, Kallas 2024), not
+a recovery from their composite. Our contribution is to ask whether
+sequence- and structure-only *proxies* of the same four rows -- which
+*can* be computed from a candidate's parent strains alone, before any
+human dosing -- carry sufficient signal to provide a candidate
+prioritisation. We refer to this proxy framework as the
+*ICA-derived sequence proxy* (ICA-SP) to distinguish it from the
+trial-derived composite.
 
-This Perspective accompanies an open-source implementation of axes 1
-(Geometry) and 2 (Equity), the only two computable pre-trial from sequence
-and structure alone. Axes 3-5 remain conceptually integral to the ICA but
-require trial-derived immune data, and any sequence-only attempt to predict
-them would be empirically dishonest. We make this scope explicit because
-the prior submission of this work (THELANCETID-D-26-00582) was rejected at
-*Lancet Infectious Diseases* in part because reviewers could not separate
-the testable from the speculative.
+This Perspective accompanies an open-source implementation that produces
+sequence-only proxies for *all four* Estofolete rows (with the caveat that
+the proxy is necessarily weaker than the wet-lab assay it shadows). Tier A
+neutralisation breadth is proxied by EDE-restricted B-cell epitope
+density; Tier A avidity by per-residue surface accessibility on
+crystallographic E dimers; Tier B memory B-cell breadth by cross-serotype
+EDE conservation; Tier B CD8 polyfunctionality by population-coverage
+weighted MHC-I binding density. Each proxy's correlation with the
+trial-derived row is empirical and may be modest; we report all four and
+benchmark the composite against published Phase 3 efficacy.
 
 ---
 

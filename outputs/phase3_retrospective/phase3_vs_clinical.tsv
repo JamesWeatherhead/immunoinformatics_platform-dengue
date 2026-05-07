@@ -1,4 +1,4 @@
-vaccine	composite_score	published_efficacy	scoring_method
-CYD-TDV	0.914	56.5	EDE-restricted Tier A+B (Rouvinski 2015 residues)
-TAK-003	0.5	61.2	EDE-restricted Tier A+B (Rouvinski 2015 residues)
-Butantan-DV	0.929	79.6	EDE-restricted Tier A+B (Rouvinski 2015 residues)
+vaccine	composite_score	published_efficacy	ci_lower	ci_upper	source
+CYD-TDV	0.914	56.5	0.0	100.0	Sridhar 2018 NEJM PMID:29897841 (HR-based, not classical VE)
+TAK-003	0.5	61.2	56.0	65.8	Tricou 2024 Lancet Glob Health PMID:38245116
+Butantan-DV	0.929	79.6	70.0	86.3	Kallas 2024 NEJM PMID:38294972
