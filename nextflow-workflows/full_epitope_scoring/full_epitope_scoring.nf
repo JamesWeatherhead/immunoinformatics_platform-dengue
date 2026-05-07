@@ -1258,9 +1258,11 @@ workflow {
     if (params.consolidate_epitopes == "yes") {
         consolidated_epitopes_output_ch = CONSOLIDATEEPITOPES()
         consolidated_epitopes_fasta_ch = GATHEREPITOPEFASTAS(consolidated_epitopes_output_ch)
-        
-        cdhit_epitopes_out_ch = CDHIT(consolidated_epitopes_fasta_ch, params.cdhit_similarity_threshold)
-        CDHITTOTSV(cdhit_epitopes_out_ch.clstr_file, params.cdhit_similarity_threshold, "epitopes")
+        // PATCH (dengue fork): CDHIT was already called at line ~1177 for input
+        // proteins. Nextflow DSL2 forbids reusing the same process. Skip the
+        // epitope-level redundancy clustering (it's optional for JessEV which
+        // reads the unfiltered feather directly via PREPAREDATAFORJESSEV).
+        // If you need it, define a CDHIT_EPI alias via include statement.
     }
     if (params.score_t_against_b == "yes") {
         println("SCORE T AGAINST B")
