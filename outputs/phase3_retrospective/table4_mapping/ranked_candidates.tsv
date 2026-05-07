@@ -1,0 +1,13 @@
+candidate_id	tier_A_neutralization_breadth_score	tier_A_avidity_score	tier_A_avidity_status	tier_B_mbc_breadth_score	tier_B_mbc_breadth_status	tier_B_cd8_polyfunctionality_score	composite_pretrial_pass
+Butantan-DV_DENV1_EU848545_CDS1			post_phase1_required		post_phase1_required		False
+Butantan-DV_DENV2_GU289914_CDS1			post_phase1_required		post_phase1_required		False
+Butantan-DV_DENV3_EF629369_CDS1			post_phase1_required		post_phase1_required		False
+Butantan-DV_DENV4_AF326825_CDS1			post_phase1_required		post_phase1_required		False
+CYD-TDV_DENV1_M87512_CDS1			post_phase1_required		post_phase1_required		False
+CYD-TDV_DENV2_M29095_CDS1			post_phase1_required		post_phase1_required		False
+CYD-TDV_DENV3_M93130_CDS1			post_phase1_required		post_phase1_required		False
+CYD-TDV_DENV4_M14931_CDS1			post_phase1_required		post_phase1_required		False
+TAK-003_DENV1_EU081230_CDS1			post_phase1_required		post_phase1_required		False
+TAK-003_DENV2_M20558_CDS1			post_phase1_required		post_phase1_required		False
+TAK-003_DENV3_EU081240_CDS1			post_phase1_required		post_phase1_required		False
+TAK-003_DENV4_EU081245_CDS1			post_phase1_required		post_phase1_required		False

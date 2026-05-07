@@ -1,4 +1,4 @@
-vaccine	composite_score	published_efficacy	tier_A_epidope	tier_B_mhci
-CYD-TDV	0.965	56.5	0.948	0.982
-TAK-003	1.0	61.2	1.0	1.0
-Butantan-DV	0.965	79.6	0.952	0.979
+vaccine	composite_score	published_efficacy	scoring_method
+CYD-TDV	0.914	56.5	EDE-restricted Tier A+B (Rouvinski 2015 residues)
+TAK-003	0.5	61.2	EDE-restricted Tier A+B (Rouvinski 2015 residues)
+Butantan-DV	0.929	79.6	EDE-restricted Tier A+B (Rouvinski 2015 residues)
