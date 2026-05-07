@@ -411,9 +411,12 @@ process NETMHCPANIIEDB {
 
     script:
     """
+    # PATCH (dengue fork): same quote fix as NETMHCPANIIIEDB - prevent bash
+    # globbing of asterisk in allele names. (Class I usually only had A/B/C
+    # alleles where this didn't bite, but we belt-and-suspenders.)
     /bin/bash -c "sed '/^[^>]/s/[B|X|J|U]//g' $protein_fasta > ${allele.replaceAll(/-/, "_").replaceAll(/:/,"_").replaceAll(/\*/,"_")}_cleaned.fasta \
     && /mhc_i/src/predict_binding.py netmhcpan_ba \
-    $allele 9 \
+    '$allele' 9 \
     ${allele.replaceAll(/-/, "_").replaceAll(/:/,"_").replaceAll(/\*/,"_")}_cleaned.fasta > \
     netmhcpan_i_${allele.replaceAll(/-/, "_").replaceAll(/:/,"_").replaceAll(/\*/,"_")}_out.tsv"
     """
@@ -460,9 +463,13 @@ process NETMHCPANIIIEDB {
 
     script:
     """
+    # PATCH (dengue fork): quote \$allele to prevent bash pathname-expansion
+    # of the asterisk in HLA-DRB1*07:01 etc. Without quoting, the wrapper sees
+    # mangled allele names and silently produces empty TSVs (sys.exit(inst)
+    # writes to stderr, not stdout, so the > redirect creates an empty success).
     /bin/bash -c "sed '/^[^>]/s/[B|X|J|U]//g' $protein_fasta > ${allele.replaceAll(/-/, "_").replaceAll(/:/,"_").replaceAll(/\*/,"_")}_cleaned.fasta \
     && /mhc_ii/mhc_II_binding.py netmhciipan_ba \
-    $allele \
+    '$allele' \
     ${allele.replaceAll(/-/, "_").replaceAll(/:/,"_").replaceAll(/\*/,"_")}_cleaned.fasta > \
     netmhcpan_ii_${allele.replaceAll(/-/, "_").replaceAll(/:/,"_").replaceAll(/\*/,"_")}_out.tsv"
     """
