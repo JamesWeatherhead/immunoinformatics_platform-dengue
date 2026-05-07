@@ -149,6 +149,11 @@ for fasta in "$E_FASTA_DIR"/*.fasta; do
     i=$((i + 1))
     log "  dispatching $name on GPUs $gpus"
     if [[ "$AF_RUNTIME" == "apptainer" ]]; then
+        # apptainer run on the catgumag/alphafold:2.3.2 image invokes
+        # /app/run_alphafold.sh which is `python /app/alphafold/run_alphafold.py "$@"`.
+        # We pass standard run_alphafold.py flags. The data_dir flag alone
+        # is not sufficient — we must give explicit paths for each DB
+        # because run_alphafold.py does not auto-derive them.
         apptainer run --nv \
             --bind "$AF_DBS":/dbs \
             --bind "$OUTDIR":/out \
@@ -160,6 +165,8 @@ for fasta in "$E_FASTA_DIR"/*.fasta; do
             --data_dir=/dbs \
             --uniref90_database_path=/dbs/uniref90/uniref90.fasta \
             --mgnify_database_path=/dbs/mgnify/mgy_clusters_2022_05.fa \
+            --bfd_database_path=/dbs/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+            --uniref30_database_path=/dbs/uniref30/UniRef30_2021_03 \
             --template_mmcif_dir=/dbs/pdb_mmcif/mmcif_files \
             --obsolete_pdbs_path=/dbs/pdb_mmcif/obsolete.dat \
             --pdb_seqres_database_path=/dbs/pdb_seqres/pdb_seqres.txt \
