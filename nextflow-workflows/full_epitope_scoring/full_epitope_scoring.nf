@@ -1194,8 +1194,11 @@ workflow {
 
     alphafold_pdb_ch = Channel.fromPath(params.alphafold_pdb_folder)
 
-    mhc_i_alleles_ch = Channel.from('HLA-A01:01','HLA-A02:01','HLA-A03:01','HLA-A24:02','HLA-A26:01','HLA-B07:02','HLA-B08:01','HLA-B15:01','HLA-B27:05','HLA-B39:01','HLA-B40:01','HLA-B58:01')
-    mhc_ii_alleles_ch = Channel.from('DRB1_0301','DRB1_0701','DRB1_1501','DRB3_0101','DRB3_0202','DRB4_0101','DRB5_0101')    
+    // PATCH (dengue fork): IEDB MHC tools require WHO-standard allele names with
+    // asterisk separator (HLA-A*01:01) not the underscore form. Without this
+    // recover_tcell.sh hit `ValueError: invalid allele_name: HLA-A01:01`.
+    mhc_i_alleles_ch = Channel.from('HLA-A*01:01','HLA-A*02:01','HLA-A*03:01','HLA-A*24:02','HLA-A*26:01','HLA-B*07:02','HLA-B*08:01','HLA-B*15:01','HLA-B*27:05','HLA-B*39:01','HLA-B*40:01','HLA-B*58:01')
+    mhc_ii_alleles_ch = Channel.from('HLA-DRB1*03:01','HLA-DRB1*07:01','HLA-DRB1*15:01','HLA-DRB3*01:01','HLA-DRB3*02:02','HLA-DRB4*01:01','HLA-DRB5*01:01')
 
     /*split_fastas_ch = SPLITFASTAS(protein_fasta_ch)*/
     split_fastas_ch = Channel.fromPath('/home/pathinformatics/epitope_outputs/split_fastas/*')
