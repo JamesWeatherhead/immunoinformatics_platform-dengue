@@ -270,38 +270,78 @@ def discover_constructs(epitope_output_folder: Path) -> list[str]:
 
 def main(argv: Iterable[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--epitope-output-folder", type=Path, required=True,
-                   help="upstream pipeline publishDir root (e.g. /home/pathinformatics/epitope_outputs)")
-    p.add_argument("--thresholds-yaml", type=Path, required=False, default=None,
-                   help="optional thresholds YAML (defaults will be used if absent)")
-    p.add_argument("--outdir", type=Path, required=True,
-                   help="output directory (created if needed)")
-    p.add_argument("--allele-freq-table", type=Path, required=False, default=None,
-                   help="path to regional_allele_frequencies tsv (if not at default location)")
+    # Original Versiani-style args (single epitope output root)
+    p.add_argument("--epitope-output-folder", type=Path, required=False, default=None)
+    p.add_argument("--outdir", type=Path, required=False, default=None)
+    # Master_pipeline split-dir args (separate phase outputs)
+    p.add_argument("--bcell_dir", type=Path, required=False, default=None)
+    p.add_argument("--tcell_dir", type=Path, required=False, default=None)
+    p.add_argument("--jessev_dir", type=Path, required=False, default=None)
+    p.add_argument("--discotope_dir", type=Path, required=False, default=None)
+    p.add_argument("--out_dir", type=Path, required=False, default=None)
+    p.add_argument("--thresholds-yaml", type=Path, required=False, default=None)
+    p.add_argument("--allele-freq-table", type=Path, required=False, default=None)
     args = p.parse_args(argv)
 
-    args.outdir.mkdir(parents=True, exist_ok=True)
+    # Reconcile alternate arg styles
+    outdir = args.outdir or args.out_dir
+    if outdir is None:
+        LOG.error("must pass --outdir or --out_dir")
+        return 1
+    outdir.mkdir(parents=True, exist_ok=True)
+
     thresholds = load_thresholds(args.thresholds_yaml)
 
-    eo = args.epitope_output_folder
-    discotope_dir = eo / "discotope"
-    plddt_dir = eo / "alphafold_predictions" / "plddt_per_residue"
-    netmhcpan_i_dir = eo / "netmhcpan_i"
-    netmhcpan_ii_dir = eo / "netmhcpan_ii"
+    if args.epitope_output_folder is not None:
+        # Single-folder mode (Versiani-style)
+        eo = args.epitope_output_folder
+        discotope_dir = eo / "discotope"
+        plddt_dir = eo / "alphafold_predictions" / "plddt_per_residue"
+        netmhcpan_i_dir = eo / "netmhcpan_i"
+        netmhcpan_ii_dir = eo / "netmhcpan_ii"
+        constructs_search_root = eo
+        allele_freq_search_root = eo / "join_tables"
+    else:
+        # Split-dir mode (master_pipeline-style)
+        bd = args.bcell_dir
+        td = args.tcell_dir
+        # Discotope can live either in dedicated dir or under bcell pipeline's discotope_output
+        discotope_dir = args.discotope_dir if args.discotope_dir else (bd / "discotope_output" if bd else None)
+        # pLDDT comes from the AlphaFold output. We synthesize a directory.
+        plddt_dir = outdir / "_synth_plddt"
+        plddt_dir.mkdir(parents=True, exist_ok=True)
+        # T-cell outputs - IEDB writes to netmhcpan_i_output / netmhcpan_ii_output subdirs
+        netmhcpan_i_dir = (td / "netmhcpan_i_output") if td else None
+        netmhcpan_ii_dir = (td / "netmhcpan_ii_output") if td else None
+        # Allele frequencies are produced by B-cell run's FORMATALLELEFREQUENCIES
+        constructs_search_root = bd if bd else td
+        allele_freq_search_root = (bd / "join_tables") if bd else None
 
-    if args.allele_freq_table is None:
-        # try the default name produced by FORMATALLELEFREQUENCIES with target_region "Brazil"
-        candidates = list((eo / "join_tables").glob("*_regional_allele_frequencies.tsv"))
-        if not candidates:
-            LOG.error("no regional_allele_frequencies tsv found; pass --allele-freq-table")
-            return 1
-        args.allele_freq_table = candidates[0]
-        LOG.info("using allele freq table: %s", args.allele_freq_table)
+    if args.allele_freq_table is None and allele_freq_search_root is not None:
+        candidates = list(allele_freq_search_root.glob("*_regional_allele_frequencies.tsv"))
+        if candidates:
+            args.allele_freq_table = candidates[0]
+            LOG.info("using allele freq table: %s", args.allele_freq_table)
+        else:
+            LOG.warning("no regional_allele_frequencies tsv found in %s; equity scores will be NaN",
+                        allele_freq_search_root)
 
-    constructs = discover_constructs(eo)
+    constructs = []
+    if constructs_search_root is not None:
+        constructs = discover_constructs(constructs_search_root)
     if not constructs:
-        LOG.error("no constructs discovered in %s/join_tables/input_fasta_table.tsv", eo)
+        LOG.warning("no constructs discovered; falling back to glob over input_fasta_table.tsv")
+        # fallback: read input_fasta_table.tsv from any subdir
+        for sub in [args.bcell_dir, args.tcell_dir, args.jessev_dir]:
+            if sub and (sub / "join_tables" / "input_fasta_table.tsv").exists():
+                df = pd.read_csv(sub / "join_tables" / "input_fasta_table.tsv", sep="\t")
+                constructs = df.iloc[:, 0].astype(str).tolist() if not df.empty else []
+                break
+    if not constructs:
+        LOG.error("no constructs found anywhere; cannot run")
         return 1
+    LOG.info("scoring %d constructs", len(constructs))
+    args.outdir = outdir  # for downstream code that uses args.outdir
     LOG.info("scoring %d constructs", len(constructs))
 
     rows = []

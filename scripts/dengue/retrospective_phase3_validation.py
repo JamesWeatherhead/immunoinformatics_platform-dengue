@@ -202,16 +202,26 @@ def correlation_to_efficacy(per_vaccine: pd.DataFrame) -> dict:
 
 def main(argv: Iterable[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--epitope-output-folder", type=Path, required=True,
+    p.add_argument("--epitope-output-folder", type=Path, required=False, default=None,
                    help="upstream pipeline publishDir root for the Phase 3 vaccine run")
+    p.add_argument("--pipeline_dir", type=Path, required=False, default=None,
+                   help="alias for --epitope-output-folder (master_pipeline-style)")
     p.add_argument("--thresholds-yaml", type=Path, required=False, default=None,
                    help="optional thresholds YAML; defaults used if absent")
-    p.add_argument("--outdir", type=Path, required=True,
+    p.add_argument("--outdir", type=Path, required=False, default=None,
                    help="output directory (created if needed)")
+    p.add_argument("--out_dir", type=Path, required=False, default=None,
+                   help="alias for --outdir (master_pipeline-style)")
     args = p.parse_args(argv)
 
-    args.outdir.mkdir(parents=True, exist_ok=True)
-    table4_tsv = run_table4_mapping(args.epitope_output_folder, args.thresholds_yaml, args.outdir)
+    epitope_folder = args.epitope_output_folder or args.pipeline_dir
+    outdir = args.outdir or args.out_dir
+    if epitope_folder is None or outdir is None:
+        LOG.error("must pass either (--epitope-output-folder + --outdir) or (--pipeline_dir + --out_dir)")
+        return 1
+    args.outdir = outdir
+    outdir.mkdir(parents=True, exist_ok=True)
+    table4_tsv = run_table4_mapping(epitope_folder, args.thresholds_yaml, outdir)
     LOG.info("loaded table4 mapping output: %s", table4_tsv)
 
     df = pd.read_csv(table4_tsv, sep="\t")
@@ -235,6 +245,21 @@ def main(argv: Iterable[str] | None = None) -> int:
     md_path = args.outdir / "phase3_vs_clinical.md"
     md_path.write_text(comparison_md(per_vaccine), encoding="utf-8")
     LOG.info("wrote %s", md_path)
+
+    # Also write phase3_vs_clinical.tsv that fill_manuscript.py consumes.
+    # Expected columns: vaccine, composite_score, published_efficacy
+    fm_rows = []
+    for _, r in per_vaccine.iterrows():
+        v = r["vaccine"]
+        fm_rows.append({
+            "vaccine": v,
+            "composite_score": r["composite_score_rank01"],
+            "published_efficacy": PUBLISHED_POOLED_EFFICACY.get(v, float("nan")),
+        })
+    fm_df = pd.DataFrame(fm_rows)
+    fm_path = args.outdir / "phase3_vs_clinical.tsv"
+    fm_df.to_csv(fm_path, sep="\t", index=False)
+    LOG.info("wrote %s (consumed by fill_manuscript.py)", fm_path)
 
     corr = correlation_to_efficacy(per_vaccine)
     corr_path = args.outdir / "phase3_correlation.json"
