@@ -29,7 +29,7 @@ params.allele_target_region = "Brazil"
 
 params.netmhcpan_tcr_toprank_threshold = 0.05
 
-params.b_cell_antigen_templates="Q8QZ72,Q8JUX5"
+params.b_cell_antigen_templates="P29990,P17763"  // PATCH (dengue fork): default to DENV-2 + DENV-1 polyproteins instead of alphavirus accessions
 
 process PROCESSINPUTFASTA {
     debug true
@@ -1142,13 +1142,20 @@ workflow {
     tcrpmhc_templates_value_ch = file(params.tcrpmhc_template_file)
 
     /*COLLECT B-CELL ANTIGEN TEMPLATES*/
-    b_cell_antigen_fastas = GETUNIPROTBYACCESSION(Channel.from(params.b_cell_antigen_templates.split(",")))
-    blast_results_tsv_ch = BLASTFROMFILES(b_cell_antigen_fastas.collect(), protein_fasta_value_ch)
-    filtered_fasta_ch = FILTERPROTEINSBYBLAST(blast_results_tsv_ch, protein_fasta_value_ch).flatten()
-    clustal_omega_output_ch = CLUSTALOMEGAMSA(filtered_fasta_ch)
-    clustal_formatted_output_ch = CONSERVEDSEQSFROMCLUSTAL(clustal_omega_output_ch)
-    conserved_epitopes_ch = COMBINEDCLUSTALEPITOPEFASTAS(clustal_formatted_output_ch.collect())
-    conserved_epitopes_ch.view()
+    // PATCH (dengue fork): the B-cell antigen template collection +
+    // BLAST + Clustal-Omega + conserved-epitope chain is only useful
+    // when one of the B-cell scorers (bepipred / epidope / dc_bcell)
+    // is enabled. Wrap so smoke tests of unrelated stages don't require
+    // the blast/clustalomega SIFs.
+    if (params.bepipred == "yes" || params.epidope == "yes" || params.dc_bcell == "yes") {
+        b_cell_antigen_fastas = GETUNIPROTBYACCESSION(Channel.from(params.b_cell_antigen_templates.split(",")))
+        blast_results_tsv_ch = BLASTFROMFILES(b_cell_antigen_fastas.collect(), protein_fasta_value_ch)
+        filtered_fasta_ch = FILTERPROTEINSBYBLAST(blast_results_tsv_ch, protein_fasta_value_ch).flatten()
+        clustal_omega_output_ch = CLUSTALOMEGAMSA(filtered_fasta_ch)
+        clustal_formatted_output_ch = CONSERVEDSEQSFROMCLUSTAL(clustal_omega_output_ch)
+        conserved_epitopes_ch = COMBINEDCLUSTALEPITOPEFASTAS(clustal_formatted_output_ch.collect())
+        conserved_epitopes_ch.view()
+    }
 
     /* CALCULATE ALLELE FREQUENCY TABLES */
     allele_frequencies_table_ch = FORMATALLELEFREQUENCIES(params.allele_target_region)
