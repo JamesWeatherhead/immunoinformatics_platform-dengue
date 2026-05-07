@@ -45,36 +45,56 @@ process PROCESSINPUTFASTA {
     script:
     """
     #!/usr/bin/python3
+    # PATCH (dengue fork): rewritten in stdlib only. Original used pandas
+    # and Biopython inline which crashed with np.bool AttributeError when
+    # apptainer's host-home auto-mount overlaid the container's numpy
+    # with the host's numpy>=1.24. Stdlib avoids the entire issue and
+    # keeps this process container-free.
     import os
-    import pandas as pd
-    from Bio import SeqIO
-    from Bio.Seq import Seq
-    from Bio.SeqRecord import SeqRecord
+    import sys
 
     sequences = []
     clean_protein_ids = []
     protein_descriptions = []
 
-    for record in SeqIO.parse("${protein_fasta}", "fasta"):
-        sequences.append(record.seq)
-        clean_protein_ids.append(record.id)
-        protein_descriptions.append(record.description)
+    cur_id = None
+    cur_desc = None
+    cur_seq = []
+    with open("${protein_fasta}") as fh:
+        for line in fh:
+            line = line.rstrip()
+            if line.startswith('>'):
+                if cur_id is not None:
+                    sequences.append(''.join(cur_seq))
+                    clean_protein_ids.append(cur_id)
+                    protein_descriptions.append(cur_desc)
+                header = line[1:]
+                parts = header.split(None, 1)
+                cur_id = parts[0]
+                cur_desc = header
+                cur_seq = []
+            else:
+                cur_seq.append(line)
+        if cur_id is not None:
+            sequences.append(''.join(cur_seq))
+            clean_protein_ids.append(cur_id)
+            protein_descriptions.append(cur_desc)
 
-    clean_records = [SeqRecord(seq=seq, id=id, description="") for seq,id in zip(sequences, clean_protein_ids)]
+    out_fasta = "${protein_fasta.getBaseName()}_no_descriptors.fasta"
+    with open(out_fasta, "w") as out:
+        for seq, sid in zip(sequences, clean_protein_ids):
+            out.write(">" + sid + "\\n")
+            for i in range(0, len(seq), 60):
+                out.write(seq[i:i+60] + "\\n")
 
-    with open("${protein_fasta.getBaseName()}_no_descriptors.fasta", "w") as output_handle:
-        SeqIO.write(clean_records, output_handle, "fasta")
+    join_dir = "${params.epitope_output_folder}/join_tables"
+    if not os.path.exists(join_dir):
+        os.makedirs(join_dir)
 
-
-    if not os.path.exists("${params.epitope_output_folder}/join_tables"):
-        os.makedirs("${params.epitope_output_folder}/join_tables")
-
-    input_fasta_table = pd.DataFrame(data={
-        "sequence":sequences,
-        "protein_id":clean_protein_ids,
-        "protein_description":protein_descriptions})
-
-    input_fasta_table.to_csv("${params.epitope_output_folder}/join_tables/input_fasta_table.tsv", sep='\t')
+    with open(join_dir + "/input_fasta_table.tsv", "w") as out:
+        out.write("\\tsequence\\tprotein_id\\tprotein_description\\n")
+        for i, (seq, sid, desc) in enumerate(zip(sequences, clean_protein_ids, protein_descriptions)):
+            out.write(str(i) + "\\t" + seq + "\\t" + sid + "\\t" + desc + "\\n")
     """
 
 }
@@ -93,39 +113,67 @@ process FORMATALLELEFREQUENCIES {
     script:
     """
     #!/usr/bin/python3
-    import pandas as pd
+    # PATCH (dengue fork): rewritten in stdlib only. Original used pandas
+    # which crashed in this same host-Python with the np.bool issue.
+    # Replicates the same join + groupby + prevalence calculation using
+    # csv module + collections.defaultdict.
+    import csv
+    from collections import defaultdict
 
-    population_terms = "${regions}".split(",")
+    population_terms = [t.strip().lower() for t in "${regions}".split(",")]
 
-    allele_df = pd.read_csv("${params.immunoinformatics_allele_table_path}", sep='\t')
-    regional_allele_data = pd.concat(allele_df[allele_df["dataset_name"].str.lower().str.contains(popterm.lower())] for popterm in population_terms).drop_duplicates()
+    rows_by_allele_type = defaultdict(list)
+    seen_keys = set()
 
-    dfs = []
+    with open("${params.immunoinformatics_allele_table_path}", newline='') as fh:
+        reader = csv.DictReader(fh, delimiter='\\t')
+        for row in reader:
+            ds = (row.get("dataset_name") or "").lower()
+            if not any(p in ds for p in population_terms):
+                continue
+            row_key = tuple(sorted((k, row[k]) for k in row))
+            if row_key in seen_keys:
+                continue
+            seen_keys.add(row_key)
+            allele_type = row.get("allele_type") or ""
+            locus = row.get("locus") or ""
+            if not allele_type or not locus or ":" not in locus:
+                continue
+            rows_by_allele_type[allele_type].append(locus)
 
-    for allele_type in regional_allele_data[pd.notna(regional_allele_data["allele_type"])]['allele_type'].unique():
-        allele_data = regional_allele_data[regional_allele_data["allele_type"]==allele_type]
-    
-        allele_data = allele_data[(allele_data["locus"].str.contains(":")) & (pd.notna(allele_data["locus"]))]
-        allele_data["locus"] = allele_data["locus"].apply(lambda x: ':'.join(x.split(':')[:2]))
-    
-        allele_data["count"] = 1
-        allele_denom = len(allele_data)
-        allele_grp = allele_data[["locus","count"]].groupby("locus").sum().reset_index()
-        allele_grp["prevalence"] = (allele_grp["count"] / allele_denom)
-        
-        if allele_type in ["A","B","C"]:
-            allele_grp["locus_join"] = ["HLA-"+i.replace("*","") for i in allele_grp["locus"]]
-        else:
-            allele_grp["locus_join"] = [i.replace("*","_").replace(":","") for i in allele_grp["locus"]]
+    out_rows = []
+    region_label = "_".join("${regions}".split(","))
+    for allele_type, loci in rows_by_allele_type.items():
+        # truncate locus to first two colon-separated fields
+        truncated = [":".join(l.split(":")[:2]) for l in loci]
+        denom = len(truncated)
+        counts = defaultdict(int)
+        for l in truncated:
+            counts[l] += 1
+        for locus, count in counts.items():
+            prevalence = count / denom if denom else 0.0
+            if allele_type in ("A", "B", "C"):
+                locus_join = "HLA-" + locus.replace("*", "")
+            else:
+                locus_join = locus.replace("*", "_").replace(":", "")
+            out_rows.append({
+                "locus": locus,
+                "count": count,
+                "prevalence": prevalence,
+                "locus_join": locus_join,
+                "region": region_label,
+            })
 
-        dfs.append(allele_grp)
-    
-    allele_prevalence = pd.concat(dfs)
-    allele_prevalence["region"] = "_".join("${regions}".split(","))
-
-    allele_prevalence.to_csv("${regions.replaceAll(/,/,"_")}_regional_allele_frequencies.tsv", sep='\t')
+    out_path = "${regions.replaceAll(/,/,"_")}_regional_allele_frequencies.tsv"
+    fieldnames = ["", "locus", "count", "prevalence", "locus_join", "region"]
+    with open(out_path, "w", newline='') as out:
+        writer = csv.DictWriter(out, fieldnames=fieldnames, delimiter='\\t')
+        writer.writeheader()
+        for i, r in enumerate(out_rows):
+            r[""] = i
+            writer.writerow(r)
     """
-  
+
 }
 
 process CDHIT {
