@@ -71,12 +71,71 @@ for line in "${CONSTRUCTS[@]}"; do
     continue
   fi
   echo "  fetch: $vaccine DENV-$sero ($acc, $strain)"
-  if curl -fsS --retry 3 --retry-delay 2 \
+  # Try fasta_cds_aa first (preferred: gives translated proteins).
+  # If that returns empty (some older GenBank records lack CDS_AA), fall
+  # back to fetching the nucleotide and translating the longest ORF.
+  curl -fsS --retry 3 --retry-delay 2 \
       "${EFETCH}?db=nuccore&id=${acc}&rettype=fasta_cds_aa&retmode=text" \
-      -o "$outfile.tmp"; then
-    if [[ -s "$outfile.tmp" ]]; then
-      # Rewrite header to make construct provenance explicit, keep all CDS records
-      python3 - <<PY
+      -o "$outfile.tmp" 2>/dev/null || true
+  if [[ ! -s "$outfile.tmp" ]] || [[ $(wc -c < "$outfile.tmp") -lt 50 ]]; then
+    echo "    fasta_cds_aa empty for $acc, falling back to nucleotide + translate"
+    rm -f "$outfile.tmp"
+    nuc_tmp="$outfile.nuc.tmp"
+    if curl -fsS --retry 3 --retry-delay 2 \
+        "${EFETCH}?db=nuccore&id=${acc}&rettype=fasta&retmode=text" \
+        -o "$nuc_tmp"; then
+      python3 - <<PYNUC
+import sys
+from pathlib import Path
+nuc_path = Path("$nuc_tmp")
+out_path = Path("$outfile.tmp")
+text = nuc_path.read_text().strip()
+if not text or not text.startswith(">"):
+    sys.exit(0)
+header, *seq_lines = text.splitlines()
+seq = "".join(seq_lines).upper().replace("U", "T")
+# Translate all 3 forward frames; take longest ORF (M..*) per frame
+def translate(s):
+    table = {
+        'TTT':'F','TTC':'F','TTA':'L','TTG':'L','CTT':'L','CTC':'L','CTA':'L','CTG':'L',
+        'ATT':'I','ATC':'I','ATA':'I','ATG':'M','GTT':'V','GTC':'V','GTA':'V','GTG':'V',
+        'TCT':'S','TCC':'S','TCA':'S','TCG':'S','CCT':'P','CCC':'P','CCA':'P','CCG':'P',
+        'ACT':'T','ACC':'T','ACA':'T','ACG':'T','GCT':'A','GCC':'A','GCA':'A','GCG':'A',
+        'TAT':'Y','TAC':'Y','TAA':'*','TAG':'*','CAT':'H','CAC':'H','CAA':'Q','CAG':'Q',
+        'AAT':'N','AAC':'N','AAA':'K','AAG':'K','GAT':'D','GAC':'D','GAA':'E','GAG':'E',
+        'TGT':'C','TGC':'C','TGA':'*','TGG':'W','CGT':'R','CGC':'R','CGA':'R','CGG':'R',
+        'AGT':'S','AGC':'S','AGA':'R','AGG':'R','GGT':'G','GGC':'G','GGA':'G','GGG':'G',
+    }
+    return "".join(table.get(s[i:i+3], "X") for i in range(0, len(s)-2, 3))
+best = ""
+for fr in range(3):
+    p = translate(seq[fr:])
+    # find longest M..stop subsequence; flaviviruses have one big polyprotein
+    cur = ""
+    for ch in p:
+        if cur:
+            if ch == "*":
+                if len(cur) > len(best):
+                    best = cur
+                cur = ""
+            else:
+                cur += ch
+        elif ch == "M":
+            cur = "M"
+    if cur and len(cur) > len(best):
+        best = cur
+if best:
+    out_path.write_text(f">${vaccine}_DENV${sero}_${acc}_translated_longest_ORF\n{best}\n")
+    print(f"    translated nucleotide -> {len(best)} aa")
+else:
+    print("    translation produced no ORF")
+PYNUC
+      rm -f "$nuc_tmp"
+    fi
+  fi
+  if [[ -s "$outfile.tmp" ]]; then
+    # Rewrite header to make construct provenance explicit, keep all CDS records
+    python3 - <<PY
 from pathlib import Path
 src = Path("$outfile.tmp").read_text()
 records = src.split('\n>')
@@ -92,13 +151,9 @@ for i, rec in enumerate(records):
     out.append(head + '\n' + body.rstrip())
 Path("$outfile").write_text('\n'.join(out) + '\n')
 PY
-      rm -f "$outfile.tmp"
-    else
-      echo "    WARN: empty fetch for $acc"
-      rm -f "$outfile.tmp"
-    fi
+    rm -f "$outfile.tmp"
   else
-    echo "    FAILED: efetch on $acc; will need manual resolution"
+    echo "    WARN: still empty after fallback for $acc; will need manual resolution"
     rm -f "$outfile.tmp"
   fi
   sleep 1
