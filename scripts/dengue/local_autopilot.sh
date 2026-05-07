@@ -17,7 +17,22 @@ set -uo pipefail
 REPO="$HOME/Desktop/dengue-fork"
 LOG="$HOME/Library/Logs/dengue_autopilot.log"
 DONE_MARKER="$REPO/outputs/manuscript/.autopilot_done"
-mkdir -p "$(dirname "$LOG")"
+LOCK_FILE="$HOME/Library/Logs/dengue_autopilot.lock"
+mkdir -p "$(dirname "$LOG")" "$REPO/outputs/manuscript" 2>/dev/null
+
+# Prevent concurrent runs (rounds can take >1h, autopilot fires every 1h)
+if [[ -f "$LOCK_FILE" ]]; then
+    pid=$(cat "$LOCK_FILE" 2>/dev/null)
+    if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+        echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] autopilot already running (PID $pid); exiting" >> "$LOG"
+        exit 0
+    else
+        # Stale lock; remove
+        rm -f "$LOCK_FILE"
+    fi
+fi
+echo $$ > "$LOCK_FILE"
+trap 'rm -f "$LOCK_FILE"' EXIT
 
 log() { printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$LOG"; }
 
