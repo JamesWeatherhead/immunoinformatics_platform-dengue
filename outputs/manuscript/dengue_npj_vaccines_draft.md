@@ -12,7 +12,7 @@ La Jolla Institute for Immunology (LJI), CA, USA.
 **Type:** Perspective with reproducible computational artifact
 **Code:** https://github.com/JamesWeatherhead/immunoinformatics_platform-dengue (tag `v1.0-dengue-results`)
 **Pipeline pedigree:** fork of `pmccaffrey6/immunoinformatics_platform` (Versiani et al. 2026 *Sci Adv* 12:eaeb2066)
-**Pipeline-numbers timestamp (auto):** 2026-05-07T14:41:32Z
+**Pipeline-numbers timestamp (auto):** 2026-05-07T14:43:49Z
 
 ---
 
@@ -34,7 +34,7 @@ candidates. We forked Versiani/McCaffrey's published immunoinformatics
 pipeline and applied it to the 3 parent strains of
 the three Phase 3 vaccines. Restricting the B-cell and T-cell scoring
 to the EDE epitope window (Rouvinski 2015 residues), the pipeline-derived
-composite correlated with published efficacy at Pearson r = 0.35
+composite correlated with published efficacy at Pearson r = 0.45
 (n=3) and correctly ranked Butantan-DV first. We
 discuss the magnitude of the gap between sequence-derivable proxies and
 trial-derived measurements, and propose the pipeline as a candidate
@@ -199,7 +199,7 @@ implementation measures HLA frequencies directly from AFND.
 
 **Figure 3** plots predicted Tier A+B composite versus published Phase 3
 efficacy across 3 constructs grouped under the three
-programs. Pearson r = 0.35 (95% CI [CI: n<4], n = 3
+programs. Pearson r = 0.45 (95% CI [CI: n<4], n = 3
 program-level points). The model rank-orders Butantan-DV > CYD-TDV > TAK-003, which
 diverges from the published clinical rank order (Butantan-DV >
 TAK-003 > CYD-TDV).
@@ -229,7 +229,7 @@ architectural framework.
 
 We can compute two of the five Estofolete-Nogueira ICA axes from sequence
 and structure alone. These two axes (Geometry, Equity) recover the
-Butantan-DV > TAK-003 > CYD-TDV rank order at Pearson r = 0.35
+Butantan-DV > TAK-003 > CYD-TDV rank order at Pearson r = 0.45
 (95% CI [CI: n<4]). The pipeline is open-source, containerised, and
 fully reproducible from the git tag `v1.0-dengue-results` of
 github.com/JamesWeatherhead/immunoinformatics_platform-dengue.
@@ -273,7 +273,7 @@ A pre-Phase-1 candidate ranking framework is most useful when calibrated
 prospectively, not just retrospectively. We propose that any Phase 1 dengue
 vaccine running in 2026-2028 deposit pre-trial Tier A+B composite scores
 (computed via this pipeline or any equivalent) as a registered prediction
-*before* unblinding, so the empirical correlate can mature from r = 0.35
+*before* unblinding, so the empirical correlate can mature from r = 0.45
 toward something operationally useful.
 
 ---
