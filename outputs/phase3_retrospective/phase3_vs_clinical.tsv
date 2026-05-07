@@ -1,4 +1,4 @@
-vaccine	composite_score	published_efficacy	n_mhci_strong_binders_avg
-CYD-TDV	0.982	56.5	1588.0
-TAK-003	1.0	61.2	1616.8
-Butantan-DV	0.979	79.6	1582.5
+vaccine	composite_score	published_efficacy	tier_A_epidope	tier_B_mhci
+CYD-TDV	0.965	56.5	0.948	0.982
+TAK-003	1.0	61.2	1.0	1.0
+Butantan-DV	0.965	79.6	0.952	0.979
