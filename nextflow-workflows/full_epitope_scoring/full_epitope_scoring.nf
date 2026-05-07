@@ -29,6 +29,12 @@ params.allele_target_region = "Brazil"
 
 params.netmhcpan_tcr_toprank_threshold = 0.05
 
+// PATCH (dengue fork): defaults for previously-undeclared params, so the
+// guards at lines ~1150 and ~1182 evaluate cleanly without warnings and
+// the BLAST/conserved-epitope chain stays gated off by default.
+params.score_conserved = "no"
+params.score_t_against_b = "no"
+
 params.b_cell_antigen_templates="P29990,P17763"  // PATCH (dengue fork): default to DENV-2 + DENV-1 polyproteins instead of alphavirus accessions
 
 process PROCESSINPUTFASTA {
