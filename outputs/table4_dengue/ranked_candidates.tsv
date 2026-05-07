@@ -1,0 +1,5 @@
+serotype	candidate_id	tier_a_composite	tier_b_composite	tier_a_neut_breadth	tier_a_avidity	tier_b_mbc_breadth	tier_b_cd8_polyfunc	tier_A_neutralization_breadth_score	tier_A_avidity_score	tier_A_avidity_status	tier_B_mbc_breadth_score	tier_B_mbc_breadth_status	tier_B_cd8_polyfunctionality_score	composite_pretrial_pass	n_bcell_epitopes	n_mhci_strong_binders	n_mhcii_strong_binders
+DENV-1	DENV-1	0.8203753351206434	1.0	0.8203753351206434	TBD	TBD	1.0	0.8203753351206434		post_phase1_required		post_phase1_required	1.0	true	306	1611	281
+DENV-2	DENV-2	0.613941018766756	0.9900682805710739	0.613941018766756	TBD	TBD	0.9900682805710739	0.613941018766756		post_phase1_required		post_phase1_required	0.9900682805710739	true	229	1595	243
+DENV-3	DENV-3	1.0	0.9770328988206083	1.0	TBD	TBD	0.9770328988206083	1.0		post_phase1_required		post_phase1_required	0.9770328988206083	true	373	1574	278
+DENV-4	DENV-4	0.6890080428954424	0.9937926753569212	0.6890080428954424	TBD	TBD	0.9937926753569212	0.6890080428954424		post_phase1_required		post_phase1_required	0.9937926753569212	true	257	1601	245
