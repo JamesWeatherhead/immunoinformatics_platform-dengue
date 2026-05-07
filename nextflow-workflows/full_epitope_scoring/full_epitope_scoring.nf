@@ -1142,12 +1142,16 @@ workflow {
     tcrpmhc_templates_value_ch = file(params.tcrpmhc_template_file)
 
     /*COLLECT B-CELL ANTIGEN TEMPLATES*/
-    // PATCH (dengue fork): the B-cell antigen template collection +
-    // BLAST + Clustal-Omega + conserved-epitope chain is only useful
-    // when one of the B-cell scorers (bepipred / epidope / dc_bcell)
-    // is enabled. Wrap so smoke tests of unrelated stages don't require
-    // the blast/clustalomega SIFs.
-    if (params.bepipred == "yes" || params.epidope == "yes" || params.dc_bcell == "yes") {
+    // PATCH (dengue fork): the entire B-cell antigen template chain
+    // (UniProt fetch + BLAST + Clustal-Omega + conserved epitopes) is
+    // ONLY needed when BOTH a B-cell scorer is enabled AND
+    // score_conserved == "yes" (those are the only branches that
+    // consume conserved_epitopes_ch — see lines ~1182, ~1190 below).
+    // Without this guard the chain fires unconditionally and requires
+    // blast_latest.sif + clustalomega_latest.sif that are not built
+    // by default.
+    if (params.score_conserved == "yes" &&
+        (params.bepipred == "yes" || params.epidope == "yes" || params.dc_bcell == "yes")) {
         b_cell_antigen_fastas = GETUNIPROTBYACCESSION(Channel.from(params.b_cell_antigen_templates.split(",")))
         blast_results_tsv_ch = BLASTFROMFILES(b_cell_antigen_fastas.collect(), protein_fasta_value_ch)
         filtered_fasta_ch = FILTERPROTEINSBYBLAST(blast_results_tsv_ch, protein_fasta_value_ch).flatten()
