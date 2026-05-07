@@ -69,8 +69,21 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+# PATCH (dengue fork): host has numpy>=1.24 (np.bool removed) but local
+# pandas 1.4 still imports np.bool. Monkeypatch before importing pandas.
+import numpy as np
+if not hasattr(np, "bool"):
+    np.bool = bool  # type: ignore[attr-defined]
+if not hasattr(np, "object"):
+    np.object = object  # type: ignore[attr-defined]
+if not hasattr(np, "int"):
+    np.int = int  # type: ignore[attr-defined]
+
 import pandas as pd
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 LOG = logging.getLogger("estofolete_table4_mapping")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -110,8 +123,8 @@ def load_thresholds(path: Path) -> dict:
             "tier_b_cd8_polyfunctionality":  {"axis": "equity"},
         },
     }
-    if path is None or not path.exists():
-        LOG.warning("thresholds yaml not found at %s; using defaults", path)
+    if path is None or not path.exists() or yaml is None:
+        LOG.warning("thresholds yaml not found or pyyaml unavailable; using defaults")
         return defaults
     with open(path) as fh:
         loaded = yaml.safe_load(fh) or {}

@@ -55,8 +55,21 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+# PATCH (dengue fork): host has numpy>=1.24 (np.bool removed) but local
+# pandas 1.4 still imports np.bool. Monkeypatch before importing pandas.
+import numpy as np
+if not hasattr(np, "bool"):
+    np.bool = bool  # type: ignore[attr-defined]
+if not hasattr(np, "object"):
+    np.object = object  # type: ignore[attr-defined]
+if not hasattr(np, "int"):
+    np.int = int  # type: ignore[attr-defined]
+
 import pandas as pd
-from scipy import stats
+try:
+    from scipy import stats
+except ImportError:
+    stats = None
 
 LOG = logging.getLogger("retrospective_phase3_validation")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -186,8 +199,18 @@ def correlation_to_efficacy(per_vaccine: pd.DataFrame) -> dict:
     sub = per_vaccine.set_index("vaccine").loc[list(PUBLISHED_POOLED_EFFICACY.keys())]
     composite = sub["composite_score_rank01"].astype(float).values
     efficacy = [PUBLISHED_POOLED_EFFICACY[v] for v in PUBLISHED_POOLED_EFFICACY.keys()]
-    rho, p_rho = stats.spearmanr(composite, efficacy)
-    r, p_r = stats.pearsonr(composite, efficacy)
+    if stats is None:
+        # Stdlib fallback for Pearson r (no Spearman without scipy)
+        n = len(composite)
+        mp, mu = sum(composite) / n, sum(efficacy) / n
+        cov = sum((c - mp) * (e - mu) for c, e in zip(composite, efficacy))
+        sx = (sum((c - mp) ** 2 for c in composite)) ** 0.5
+        sy = (sum((e - mu) ** 2 for e in efficacy)) ** 0.5
+        r = cov / (sx * sy) if sx > 0 and sy > 0 else 0.0
+        rho, p_rho, p_r = float("nan"), float("nan"), float("nan")
+    else:
+        rho, p_rho = stats.spearmanr(composite, efficacy)
+        r, p_r = stats.pearsonr(composite, efficacy)
     return {
         "n_vaccines": len(efficacy),
         "spearman_rho": float(rho) if rho == rho else None,
