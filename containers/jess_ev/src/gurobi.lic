@@ -1,6 +1,19 @@
 # Gurobi WLS license file
-# Your credentials are private and should not be shared or copied to public repositories.
-# Visit https://license.gurobi.com/manager/doc/overview for more information.
-WLSACCESSID=931c9283-46b4-4af0-b965-2620305e3695
-WLSSECRET=d6e250d9-da06-449c-b69e-fa66089a76ef
-LICENSEID=876137
+# REPLACED IN FORK: the upstream repo (pmccaffrey6/immunoinformatics_platform)
+# inherited committed Gurobi credentials. They have been scrubbed in this fork.
+# To use the JessEV epitope-selection step, set your own Gurobi WLS license
+# at runtime via environment variables or by mounting your own gurobi.lic into
+# the container at /gurobi.lic.
+#
+# Get a free Gurobi academic license at:
+#   https://www.gurobi.com/academia/academic-program-and-licenses/
+#
+# Required environment variables (or values in this file):
+#   WLSACCESSID=<your-uuid>
+#   WLSSECRET=<your-secret>
+#   LICENSEID=<your-license-id>
+#
+# See containers/jess_ev/README.md for full configuration.
+WLSACCESSID=REPLACE_WITH_YOUR_WLS_ACCESS_ID
+WLSSECRET=REPLACE_WITH_YOUR_WLS_SECRET
+LICENSEID=REPLACE_WITH_YOUR_LICENSE_ID
