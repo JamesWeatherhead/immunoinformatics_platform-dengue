@@ -124,7 +124,7 @@ The prior version of this work (THELANCETID-D-26-00582) was rejected at *Lancet 
 
 ### 4.4 What we ask of the field
 
-A pre-Phase-1 candidate ranking framework is most useful when calibrated prospectively, not just retrospectively. We propose that Phase 1 dengue (and Zika, JEV, YFV) vaccine programs running 2026-2028 deposit pre-trial Tier A+B composite scores — computed via this pipeline or an equivalent — as a registered prediction *before* unblinding, so the empirical correlate can mature from r ~ 0.45 (n=3) toward a value with confidence-interval power.
+A pre-Phase-1 candidate ranking framework is most useful when calibrated prospectively, not just retrospectively. We propose that Phase 1 dengue (and Zika, JEV, YFV) vaccine programs running 2026-2028 deposit pre-trial Tier A+B composite scores — computed via this pipeline or an equivalent — as a registered prediction *before* unblinding, so the empirical correlate can mature from r ~ 0.35 (n=3) toward a value with confidence-interval power.
 
 ---
 
