@@ -41,21 +41,40 @@ def parse_serotype(seqid):
     return seqid
 
 
-def count_epidope_per_serotype(bcell_dir, score_threshold=0.8):
+def count_epidope_per_serotype(bcell_dir, score_threshold=0.7):
+    """Count high-score B-cell residues per serotype.
+
+    Uses epidope_scores.csv (per-residue) since predicted_epitopes.csv
+    sometimes ends up empty when EpiDope's stringent epitope threshold
+    rejects all peptides. The per-residue scores are real signal.
+
+    Format: 'position/header\taminoacid\tscore' with '>seqid' header rows.
+    """
     counts = defaultdict(int)
-    files = glob.glob(os.path.join(bcell_dir, "epidope_output", "*", "predicted_epitopes.csv"))
+    files = glob.glob(os.path.join(bcell_dir, "epidope_output", "*", "epidope_scores.csv"))
+    if not files:
+        # fall back to old predicted_epitopes.csv format
+        files = glob.glob(os.path.join(bcell_dir, "epidope_output", "*", "predicted_epitopes.csv"))
     for f in files:
         try:
+            current_sero = None
             with open(f) as fh:
-                reader = csv.DictReader(fh, delimiter="\t")
-                for row in reader:
-                    sero = parse_serotype(row.get("#Gene_ID", ""))
+                for line in fh:
+                    line = line.rstrip()
+                    if not line or line.startswith("position/header") or line.startswith("#"):
+                        continue
+                    if line.startswith(">"):
+                        current_sero = parse_serotype(line[1:])
+                        continue
+                    parts = line.split("\t")
+                    if len(parts) < 3 or current_sero is None:
+                        continue
                     try:
-                        score = float(row.get("score", 0))
+                        score = float(parts[2])
                     except ValueError:
                         continue
                     if score >= score_threshold:
-                        counts[sero] += 1
+                        counts[current_sero] += 1
         except Exception as e:
             print(f"  warn: {f}: {e}", file=sys.stderr)
     return dict(counts)
