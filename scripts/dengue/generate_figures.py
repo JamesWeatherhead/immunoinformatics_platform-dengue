@@ -59,10 +59,11 @@ def placeholder(ax, msg):
 
 def save(fig, out_dir, name):
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, f"{name}.png"), dpi=200, bbox_inches="tight")
+    fig.savefig(os.path.join(out_dir, f"{name}.png"), dpi=300, bbox_inches="tight")
+    fig.savefig(os.path.join(out_dir, f"{name}.pdf"), bbox_inches="tight")
     fig.savefig(os.path.join(out_dir, f"{name}.svg"), bbox_inches="tight")
     plt.close(fig)
-    print(f"  saved {name}.png + .svg")
+    print(f"  saved {name}.png + .pdf + .svg")
 
 
 def read_tsv(path):
@@ -138,6 +139,17 @@ def fig3_phase3_retrospective(out_dir, phase3_dir):
         ax.set_title("Fig 3. Predicted Tier A+B scores vs published Phase 3 efficacy")
         save(fig, out_dir, "fig3_phase3_retrospective")
         return
+    # Try to read companion statistical_analyses.json for permutation p
+    perm_p = None
+    stats_path = os.path.join(phase3_dir or "", "statistical_analyses.json")
+    if os.path.isfile(stats_path):
+        try:
+            import json
+            with open(stats_path) as f:
+                stats_obj = json.load(f)
+            perm_p = stats_obj.get("permutation_p_tier_A")
+        except Exception:
+            perm_p = None
     vaccines = sorted({r["vaccine"] for r in rows if "vaccine" in r})
     predicted = []
     published = []
@@ -166,16 +178,23 @@ def fig3_phase3_retrospective(out_dir, phase3_dir):
             ax.plot(x_line, slope * x_line + intercept, "--", color="#666666", alpha=0.6,
                     label=f"linear fit: y={slope:.1f}x+{intercept:.1f}")
             corr = np.corrcoef(predicted, published)[0, 1]
-            ax.text(0.05, 0.95, f"Pearson r = {corr:.2f}",
-                    transform=ax.transAxes, va="top", fontsize=11,
+            # Pearson r in upper-left
+            ax.text(0.03, 0.97, f"Pearson r = {corr:.2f}",
+                    transform=ax.transAxes, va="top", ha="left", fontsize=11,
                     bbox=dict(boxstyle="round", facecolor="#ffffcc", edgecolor="black"))
+            # Permutation p in upper-right
+            if perm_p is not None:
+                ax.text(0.97, 0.97, f"permutation p = {perm_p:.2f}",
+                        transform=ax.transAxes, va="top", ha="right", fontsize=11,
+                        bbox=dict(boxstyle="round", facecolor="#e6f2ff", edgecolor="black"))
         ax.legend(loc="lower right")
     else:
         placeholder(ax, "no Phase 3 vaccine matches found in retrospective data")
     ax.set_xlabel("Predicted composite Tier A+B score (pipeline output)")
     ax.set_ylabel("Published Phase 3 efficacy (%)")
     ax.set_title("Fig 3. Retrospective Phase 3 validation:\n"
-                 "predicted composite scores vs published clinical efficacy")
+                 "predicted composite scores vs published clinical efficacy\n"
+                 "n=3 vaccine programs", fontsize=10)
     ax.grid(alpha=0.3)
     ax.set_xlim(0, 1.05)
     ax.set_ylim(0, 100)
@@ -183,6 +202,50 @@ def fig3_phase3_retrospective(out_dir, phase3_dir):
 
 
 def fig4_hla_coverage_heatmap(out_dir, table4_dir):
+    # Prefer the new 16-region v2 file (one row per region, mean dengue polyprotein coverage)
+    v2_path = os.path.join(table4_dir or "", "hla_coverage_by_region_v2.tsv")
+    rows_v2 = read_tsv(v2_path) if os.path.isfile(v2_path) else None
+    if rows_v2 and any("mean_coverage_dengue_polyproteins" in r for r in rows_v2):
+        fig, ax = plt.subplots(figsize=(8, 8))
+        regions, coverages = [], []
+        for r in rows_v2:
+            try:
+                cov = float(r.get("mean_coverage_dengue_polyproteins", "") or 0.0)
+            except ValueError:
+                continue
+            regions.append(r.get("region", "?"))
+            coverages.append(cov)
+        # Sort by coverage descending so weakest regions sit at bottom
+        order = sorted(range(len(regions)), key=lambda i: coverages[i], reverse=True)
+        regions = [regions[i] for i in order]
+        coverages = [coverages[i] for i in order]
+        matrix = np.array(coverages).reshape(-1, 1)
+        im = ax.imshow(matrix, cmap="RdYlGn", aspect="auto", vmin=0.7, vmax=1.0)
+        ax.set_xticks([0])
+        ax.set_xticklabels(["mean coverage\n(dengue polyproteins)"])
+        ax.set_yticks(np.arange(len(regions)))
+        ax.set_yticklabels(regions)
+        # Threshold marker at 0.78 (Nigeria + Senegal fall below)
+        threshold = 0.78
+        for i, cov in enumerate(coverages):
+            color = "black" if cov > 0.85 else "white"
+            label = f"{cov:.3f}"
+            if cov < threshold:
+                label = f"{cov:.3f} *"
+            ax.text(0, i, label, ha="center", va="center", color=color, fontsize=9)
+            if cov < threshold:
+                # Highlight box around the cell
+                ax.add_patch(plt.Rectangle((-0.5, i - 0.5), 1.0, 1.0,
+                                           fill=False, edgecolor="#d62728", linewidth=2.5))
+        cbar = plt.colorbar(im, ax=ax, label="Mean population coverage (IEDB)")
+        cbar.ax.axhline(threshold, color="#d62728", linewidth=1.5)
+        ax.set_title(f"Fig 4. HLA Class I population coverage of DENV-1-4 polyproteins\n"
+                     f"across {len(regions)} dengue-endemic regions\n"
+                     f"(red box = below {threshold:.2f} threshold; equity axis exclusion)",
+                     fontsize=10)
+        save(fig, out_dir, "fig4_hla_coverage_heatmap")
+        return
+    # Legacy 5-region by serotype matrix
     fig, ax = plt.subplots(figsize=(10, 6))
     rows = read_tsv(os.path.join(table4_dir or "", "hla_coverage_by_region.tsv"))
     if not rows:
@@ -278,6 +341,14 @@ def main():
     p.add_argument("--tcell_dir",  default="outputs/dengue_tcell")
     p.add_argument("--out_dir",    default="outputs/figures")
     args = p.parse_args()
+
+    matplotlib.rcParams.update({
+        'figure.dpi': 300, 'savefig.dpi': 300,
+        'font.family': 'sans-serif', 'font.size': 9,
+        'axes.linewidth': 0.8, 'axes.labelsize': 9, 'axes.titlesize': 10,
+        'legend.fontsize': 8, 'xtick.labelsize': 8, 'ytick.labelsize': 8,
+        'savefig.bbox': 'tight', 'savefig.pad_inches': 0.1,
+    })
 
     os.makedirs(args.out_dir, exist_ok=True)
     print(f"generating figures into {args.out_dir}")
