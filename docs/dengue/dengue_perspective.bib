@@ -1,0 +1,7 @@
+ERR: export: argument must be a SQL query starting with SELECT or WITH.
+  Got: '--format bibtex'
+
+  To fetch fields for papers from a search result, write a query like:
+    export "SELECT title, doi, month_year, abstract_text FROM documents
+             WHERE document_id IN (...) ORDER BY month_year DESC LIMIT 30"
+[exit 1]
