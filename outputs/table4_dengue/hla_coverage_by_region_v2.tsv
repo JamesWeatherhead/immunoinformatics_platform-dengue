@@ -1,0 +1,17 @@
+region	n_populations_aggregated	n_alleles	total_sample_size	mean_coverage_dengue_polyproteins
+mexico	120	109	19422	0.9061
+brazil_all	71	144	2862328	0.8609
+brazil_north	18	88	589711	0.8669
+brazil_ne	11	83	411558	0.8514
+brazil_central	5	70	248642	0.8579
+brazil_se	10	132	1245431	0.8554
+brazil_south	5	69	353002	0.8814
+brazil_other	22	137	13984	0.8526
+india	55	112	37805	0.8723
+colombia	31	101	2920	0.8849
+thailand	12	88	18205	0.8820
+vietnam	6	62	2583	0.8945
+peru	5	74	505	0.9258
+tanzania	2	104	548	0.8267
+senegal	2	65	277	0.7769
+nigeria	2	88	388	0.7552

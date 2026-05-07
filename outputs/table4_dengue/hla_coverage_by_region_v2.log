@@ -1,0 +1,34 @@
+netMHCpan: parsed 12 alleles, 162336 rows, 6381 strong binders (rank<=2.0)
+Per-allele protein coverage (seq_nums with at least 1 strong binder):
+  A*01: seq_nums=[1, 2, 3, 4]
+  A*02: seq_nums=[1, 2, 3, 4]
+  A*03: seq_nums=[1, 2, 3, 4]
+  A*24: seq_nums=[1, 2, 3, 4]
+  A*26: seq_nums=[1, 2, 3, 4]
+  B*07: seq_nums=[1, 2, 3, 4]
+  B*08: seq_nums=[1, 2, 3, 4]
+  B*15: seq_nums=[1, 2, 3, 4]
+  B*27: seq_nums=[1, 2, 3, 4]
+  B*39: seq_nums=[1, 2, 3, 4]
+  B*40: seq_nums=[1, 2, 3, 4]
+  B*58: seq_nums=[1, 2, 3, 4]
+DENV polyproteins observed: [1, 2, 3, 4]
+AFND regions on disk: ['', 'brazil_all', 'brazil_central', 'brazil_ne', 'brazil_north', 'brazil_other', 'brazil_se', 'brazil_south', 'colombia', 'india', 'mexico', 'nigeria', 'peru', 'senegal', 'tanzania', 'thailand', 'vietnam']
+mexico: pops=120 alleles=109 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=19422 coverage=0.9061
+brazil_all: pops=71 alleles=144 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=2862328 coverage=0.8609
+brazil_north: pops=18 alleles=88 loci=['A', 'B', 'C', 'DQB1', 'DRB1'] N=589711 coverage=0.8669
+brazil_ne: pops=11 alleles=83 loci=['A', 'B', 'C', 'DRB1'] N=411558 coverage=0.8514
+brazil_central: pops=5 alleles=70 loci=['A', 'B', 'DRB1'] N=248642 coverage=0.8579
+brazil_se: pops=10 alleles=132 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=1245431 coverage=0.8554
+brazil_south: pops=5 alleles=69 loci=['A', 'B', 'DRB1'] N=353002 coverage=0.8814
+brazil_other: pops=22 alleles=137 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=13984 coverage=0.8526
+india: pops=55 alleles=112 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=37805 coverage=0.8723
+colombia: pops=31 alleles=101 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=2920 coverage=0.8849
+thailand: pops=12 alleles=88 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=18205 coverage=0.8820
+vietnam: pops=6 alleles=62 loci=['A', 'B', 'C', 'DQB1', 'DRB1'] N=2583 coverage=0.8945
+peru: pops=5 alleles=74 loci=['A', 'B', 'C', 'DQB1', 'DRB1'] N=505 coverage=0.9258
+tanzania: pops=2 alleles=104 loci=['A', 'B', 'C', 'DPB1', 'DQB1', 'DRB1'] N=548 coverage=0.8267
+senegal: pops=2 alleles=65 loci=['A', 'B', 'C', 'DRB1'] N=277 coverage=0.7769
+nigeria: pops=2 alleles=88 loci=['A', 'B', 'C', 'DPB1', 'DRB1'] N=388 coverage=0.7552
+WROTE /data/james/ica-dengue/outputs/table4_dengue/hla_coverage_by_region_v2.tsv
+WROTE /data/james/ica-dengue/outputs/table4_dengue/hla_coverage_by_region_v2.json

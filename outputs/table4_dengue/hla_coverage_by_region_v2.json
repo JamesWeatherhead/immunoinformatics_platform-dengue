@@ -1,0 +1,586 @@
+{
+  "rank_threshold": 2.0,
+  "predicted_alleles": [
+    "A*01",
+    "A*02",
+    "A*03",
+    "A*24",
+    "A*26",
+    "B*07",
+    "B*08",
+    "B*15",
+    "B*27",
+    "B*39",
+    "B*40",
+    "B*58"
+  ],
+  "proteins_seq_nums": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "results": [
+    {
+      "region": "mexico",
+      "n_populations_aggregated": 120,
+      "n_alleles": 109,
+      "total_sample_size": 19422,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 13305,
+      "mean_coverage_dengue_polyproteins": 0.9060804955809174,
+      "per_protein_coverage": {
+        "1": 0.9060804955809174,
+        "2": 0.9060804955809174,
+        "3": 0.9060804955809174,
+        "4": 0.9060804955809174
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "brazil_all",
+      "n_populations_aggregated": 71,
+      "n_alleles": 144,
+      "total_sample_size": 2862328,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 6973,
+      "mean_coverage_dengue_polyproteins": 0.8608763468981924,
+      "per_protein_coverage": {
+        "1": 0.8608763468981924,
+        "2": 0.8608763468981924,
+        "3": 0.8608763468981924,
+        "4": 0.8608763468981924
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "brazil_north",
+      "n_populations_aggregated": 18,
+      "n_alleles": 88,
+      "total_sample_size": 589711,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 1276,
+      "mean_coverage_dengue_polyproteins": 0.8668762984522429,
+      "per_protein_coverage": {
+        "1": 0.8668762984522429,
+        "2": 0.8668762984522429,
+        "3": 0.8668762984522429,
+        "4": 0.8668762984522429
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "brazil_ne",
+      "n_populations_aggregated": 11,
+      "n_alleles": 83,
+      "total_sample_size": 411558,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DRB1"
+      ],
+      "n_records": 747,
+      "mean_coverage_dengue_polyproteins": 0.8514025303149262,
+      "per_protein_coverage": {
+        "1": 0.8514025303149262,
+        "2": 0.8514025303149262,
+        "3": 0.8514025303149262,
+        "4": 0.8514025303149262
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "brazil_central",
+      "n_populations_aggregated": 5,
+      "n_alleles": 70,
+      "total_sample_size": 248642,
+      "loci_present": [
+        "A",
+        "B",
+        "DRB1"
+      ],
+      "n_records": 332,
+      "mean_coverage_dengue_polyproteins": 0.8579096757463258,
+      "per_protein_coverage": {
+        "1": 0.8579096757463258,
+        "2": 0.8579096757463258,
+        "3": 0.8579096757463258,
+        "4": 0.8579096757463258
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "brazil_se",
+      "n_populations_aggregated": 10,
+      "n_alleles": 132,
+      "total_sample_size": 1245431,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 1167,
+      "mean_coverage_dengue_polyproteins": 0.8554151849454728,
+      "per_protein_coverage": {
+        "1": 0.8554151849454728,
+        "2": 0.8554151849454728,
+        "3": 0.8554151849454728,
+        "4": 0.8554151849454728
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "brazil_south",
+      "n_populations_aggregated": 5,
+      "n_alleles": 69,
+      "total_sample_size": 353002,
+      "loci_present": [
+        "A",
+        "B",
+        "DRB1"
+      ],
+      "n_records": 324,
+      "mean_coverage_dengue_polyproteins": 0.8814106624041748,
+      "per_protein_coverage": {
+        "1": 0.8814106624041748,
+        "2": 0.8814106624041748,
+        "3": 0.8814106624041748,
+        "4": 0.8814106624041748
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "brazil_other",
+      "n_populations_aggregated": 22,
+      "n_alleles": 137,
+      "total_sample_size": 13984,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 3127,
+      "mean_coverage_dengue_polyproteins": 0.8526461580214069,
+      "per_protein_coverage": {
+        "1": 0.8526461580214069,
+        "2": 0.8526461580214069,
+        "3": 0.8526461580214069,
+        "4": 0.8526461580214069
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "india",
+      "n_populations_aggregated": 55,
+      "n_alleles": 112,
+      "total_sample_size": 37805,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 5151,
+      "mean_coverage_dengue_polyproteins": 0.8722643000627861,
+      "per_protein_coverage": {
+        "1": 0.8722643000627861,
+        "2": 0.8722643000627861,
+        "3": 0.8722643000627861,
+        "4": 0.8722643000627861
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "colombia",
+      "n_populations_aggregated": 31,
+      "n_alleles": 101,
+      "total_sample_size": 2920,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 1410,
+      "mean_coverage_dengue_polyproteins": 0.8848668827621844,
+      "per_protein_coverage": {
+        "1": 0.8848668827621844,
+        "2": 0.8848668827621844,
+        "3": 0.8848668827621844,
+        "4": 0.8848668827621844
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "thailand",
+      "n_populations_aggregated": 12,
+      "n_alleles": 88,
+      "total_sample_size": 18205,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 643,
+      "mean_coverage_dengue_polyproteins": 0.8819747353924972,
+      "per_protein_coverage": {
+        "1": 0.8819747353924972,
+        "2": 0.8819747353924972,
+        "3": 0.8819747353924972,
+        "4": 0.8819747353924972
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "vietnam",
+      "n_populations_aggregated": 6,
+      "n_alleles": 62,
+      "total_sample_size": 2583,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 413,
+      "mean_coverage_dengue_polyproteins": 0.8944770304648814,
+      "per_protein_coverage": {
+        "1": 0.8944770304648814,
+        "2": 0.8944770304648814,
+        "3": 0.8944770304648814,
+        "4": 0.8944770304648814
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "peru",
+      "n_populations_aggregated": 5,
+      "n_alleles": 74,
+      "total_sample_size": 505,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 342,
+      "mean_coverage_dengue_polyproteins": 0.9257889412643732,
+      "per_protein_coverage": {
+        "1": 0.9257889412643732,
+        "2": 0.9257889412643732,
+        "3": 0.9257889412643732,
+        "4": 0.9257889412643732
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "tanzania",
+      "n_populations_aggregated": 2,
+      "n_alleles": 104,
+      "total_sample_size": 548,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DQB1",
+        "DRB1"
+      ],
+      "n_records": 295,
+      "mean_coverage_dengue_polyproteins": 0.8267085703380207,
+      "per_protein_coverage": {
+        "1": 0.8267085703380207,
+        "2": 0.8267085703380207,
+        "3": 0.8267085703380207,
+        "4": 0.8267085703380207
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "senegal",
+      "n_populations_aggregated": 2,
+      "n_alleles": 65,
+      "total_sample_size": 277,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DRB1"
+      ],
+      "n_records": 144,
+      "mean_coverage_dengue_polyproteins": 0.7769485018008782,
+      "per_protein_coverage": {
+        "1": 0.7769485018008782,
+        "2": 0.7769485018008782,
+        "3": 0.7769485018008782,
+        "4": 0.7769485018008782
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*40",
+        "B*58"
+      ]
+    },
+    {
+      "region": "nigeria",
+      "n_populations_aggregated": 2,
+      "n_alleles": 88,
+      "total_sample_size": 388,
+      "loci_present": [
+        "A",
+        "B",
+        "C",
+        "DPB1",
+        "DRB1"
+      ],
+      "n_records": 98,
+      "mean_coverage_dengue_polyproteins": 0.755240865078132,
+      "per_protein_coverage": {
+        "1": 0.755240865078132,
+        "2": 0.755240865078132,
+        "3": 0.755240865078132,
+        "4": 0.755240865078132
+      },
+      "predicted_alleles_with_freq_in_region": [
+        "A*01",
+        "A*02",
+        "A*03",
+        "A*24",
+        "A*26",
+        "B*07",
+        "B*08",
+        "B*15",
+        "B*27",
+        "B*39",
+        "B*58"
+      ]
+    }
+  ]
+}
