@@ -1,0 +1,9 @@
+hla_allele	n_predicted	n_iedb_known	true_positives	precision	recall
+HLA-A02:01	0	0	0	0.000	0.000
+HLA-A24:02	0	0	0	0.000	0.000
+HLA-B07:02	0	0	0	0.000	0.000
+HLA-B35:01	0	0	0	0.000	0.000
+HLA-B57:01	0	0	0	0.000	0.000
+HLA-DRB1*07:01	0	0	0	0.000	0.000
+HLA-DRB1*15:01	0	0	0	0.000	0.000
+HLA-DPB1*04:01	0	0	0	0.000	0.000

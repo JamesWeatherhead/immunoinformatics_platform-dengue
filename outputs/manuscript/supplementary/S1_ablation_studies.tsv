@@ -1,0 +1,10 @@
+scoring_mode	weight_scheme	tier_A_only_r	tier_B_only_r	composite_r	butantan_correctly_first
+full_polyprotein	equal_weights	-0.319	-0.158	-0.320	false
+full_polyprotein	tier_B_heavy_w0.75	-0.205	-0.158	-0.180	false
+full_polyprotein	tier_A_heavy_w0.75	-0.297	-0.158	-0.288	false
+E_protein_only	equal_weights	0.107	-0.173	-0.041	false
+E_protein_only	tier_B_heavy_w0.75	0.014	-0.173	-0.131	false
+E_protein_only	tier_A_heavy_w0.75	0.205	-0.173	0.062	false
+EDE_only	equal_weights	0.324	-0.173	0.213	true
+EDE_only	tier_B_heavy_w0.75	0.324	-0.173	-0.057	true
+EDE_only	tier_A_heavy_w0.75	0.324	-0.173	0.352	true

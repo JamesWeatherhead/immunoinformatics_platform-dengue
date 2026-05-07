@@ -1,0 +1,24 @@
+claim	citation_PMID	paperclip_verified_y_n	primary_or_review	last_checked_date
+Dengue is the largest single arboviral disease burden globally (~390M infections/yr, ~96M symptomatic)	23563266	y	primary	2026-05-06
+CYD-TDV 5-year efficacy 56.5% against virologically-confirmed dengue	29897841	y	primary	2026-05-06
+TAK-003 5-year efficacy 61.2% (Lancet Glob Health, not NEJM)	38245116	y	primary	2026-05-06
+Butantan-DV 5-year efficacy 79.6%	38294972	y	primary	2026-05-06
+Estofolete-Nogueira composite immune correlate (4-row Tier A + Tier B framework)	doi:10.1038/s41541-026-01400-4	y	primary	2026-05-06
+EDE epitope window residues defined by Rouvinski et al. 2015	26308890	y	primary	2026-05-06
+DENV E-dimer reference structure (PDB 1OAN), serotype-2 envelope	14764886	y	primary	2026-05-06
+Versiani-McCaffrey immunoinformatics_platform Nextflow workflow	doi:10.1126/sciadv.aeb2066	n	primary	2026-05-06
+EpiDope sequential B-cell epitope predictor	33125465	y	primary	2026-05-06
+BepiPred-3.1 sequential B-cell epitope predictor	36860203	y	primary	2026-05-06
+DiscoTope geometric B-cell epitope refinement	22323691	y	primary	2026-05-06
+NetMHCpan-4.1 MHC-I binding prediction	32406916	y	primary	2026-05-06
+NetMHCIIpan-4.1 MHC-II binding prediction	32406916	y	primary	2026-05-06
+IEDB Population Coverage tool with AFND HLA frequencies	16545040	y	primary	2026-05-06
+JessEV epitope-set selection under integer-programming objective	33326027	n	primary	2026-05-06
+AlphaFold-Multimer structural prediction	34293799	y	primary	2026-05-06
+CD-HIT redundancy clustering	23060610	y	primary	2026-05-06
+ADE geometric substrate at EDE epitope (paratope-recognition loss)	21737702	y	review	2026-05-06
+Reviewer 3 critique of HLA-inequity citations from prior Lancet ID submission	NA_internal_review	NA	NA	2026-05-06
+Brazilian regional HLA frequencies from AFND release 2024-12	NA_database_release	NA	primary	2026-05-06
+DENV-4 has smaller circulating diversity than DENV-2 (claim of asymmetric backbone use)	28492867	n	review	2026-05-06
+CYD-TDV underperformance in seronegative recipients (FcgammaR balance hypothesis)	29282091	n	primary	2026-05-06
+Population coverage threshold of 0.7 as field convention for HLA equity	19402892	n	review	2026-05-06
