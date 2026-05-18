@@ -2,6 +2,8 @@
 
 This is a fork of [`pmccaffrey6/immunoinformatics_platform`](https://github.com/pmccaffrey6/immunoinformatics_platform) (the published pan-alphavirus epitope-selection pipeline of Versiani et al. *Sci. Adv.* 2026; 12:eaeb2066) extended to dengue and adapted to compute pre-trial estimators of the four-row composite correlate of dengue vaccine efficacy proposed by Estofolete et al. *npj Vaccines* 2026; 11:68 Table 4.
 
+<img width="2354" height="498" alt="CleanShot 2026-05-18 at 09 11 01@2x" src="https://github.com/user-attachments/assets/13fecbfc-075d-4440-93ba-1fb7abd26c2d" />
+
 ## What this fork adds
 
 - **DENV 1-4 reference polyproteins** plus **12 Phase 3 vaccine parent strain sequences** (CYD-TDV, TAK-003, Butantan-DV) for retrospective validation.
